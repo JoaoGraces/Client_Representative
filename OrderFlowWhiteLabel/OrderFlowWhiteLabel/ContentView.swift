@@ -22,3 +22,35 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
+
+struct LoginView:View {
+    var body: some View {
+        Text("Login View")
+    }
+}
+
+
+struct AccountCreated:View {
+    @State var usuario: Usuario
+    
+    var body: some View {
+        VStack{
+            Text("\(usuario.dataCriacao)")
+                .padding()
+            Text("\(usuario.id)")
+                .padding()
+            Text("\(usuario.empresaId)")
+                .padding()
+            Text(usuario.nomeCompleto)
+                .padding()
+            Text(usuario.email)
+                .padding()
+            Text(usuario.senha_hash)
+                .padding()
+            Text("\(usuario.papel.rawValue)")
+                .padding()
+            
+        }
+    }
+}
