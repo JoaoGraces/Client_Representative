@@ -80,14 +80,14 @@ struct RegisterView: View {
             .padding(.horizontal, DS.Spacing.pageLeading)
             .padding(.top, 24)
 
-            Spacer(minLength: 0)
+//            Spacer(minLength: 0)
 
             // CTA
             PrimaryButton(title: "Criar Conta") {
                 onCreateAccount(fullName, email, phone, password)
             }
             .disabled(!isFormValid)
-            .padding(.top, 8)
+            .padding(.top, 24)
 
             // Link para login
             Button(action: onGoToLogin) {
