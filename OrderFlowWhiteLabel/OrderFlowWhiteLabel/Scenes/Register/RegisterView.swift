@@ -6,33 +6,17 @@
 //
 
 import Foundation
-
 import SwiftUI
 
-// MARK: - Register View
-
-struct RegisterView: View {
-    // Estados dos campos
-    @State private var fullName: String = ""
-    @State private var email: String = ""
-    @State private var phone: String = ""
-    @State private var password: String = ""
-    @State private var confirmPassword: String = ""
-
-    var onCreateAccount: (_ fullName: String, _ email: String, _ phone: String, _ password: String) -> Void = { _,_,_,_ in }
-    var onGoToLogin: () -> Void = {}
-
-    // Validação simples só para habilitar/desabilitar o CTA
-    private var isFormValid: Bool {
-        !fullName.trimmingCharacters(in: .whitespaces).isEmpty &&
-        email.contains("@") &&
-        password.count >= 6 &&
-        password == confirmPassword
+struct RegisterView<ViewModel: RegisterViewModeling>: View {
+    @ObservedObject private var viewModel: ViewModel
+    
+    init(viewModel: ViewModel) {
+        self.viewModel = viewModel
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            // Título centralizado (usa tokens do DS)
             TitleTextCentered(text: "Crie Sua Conta")
                 .padding(.top, 24)
 
@@ -42,55 +26,35 @@ struct RegisterView: View {
                 .padding(.horizontal, 32)
                 .padding(.top, 8)
 
-            // Campos
             VStack(spacing: 16) {
-                IconTextField(text: $fullName,
-                              placeholder: "Nome Completo",
-                              systemImage: "person.crop.circle")
+                IconTextField(text: $viewModel.fullName, placeholder: "Nome Completo", systemImage: "person.crop.circle")
                     .textContentType(.name)
                     .submitLabel(.next)
 
-                IconTextField(text: $email,
-                              placeholder: "E-mail",
-                              systemImage: "envelope",
-                              keyboard: .emailAddress,
-                              autocapitalization: .never)
+                IconTextField(text: $viewModel.email, placeholder: "E-mail", systemImage: "envelope", keyboard: .emailAddress, autocapitalization: .never)
                     .textContentType(.emailAddress)
                     .submitLabel(.next)
 
-                IconTextField(text: $phone,
-                              placeholder: "Telefone",
-                              systemImage: "phone",
-                              keyboard: .numberPad)
+                IconTextField(text: $viewModel.phone, placeholder: "Telefone", systemImage: "phone", keyboard: .numberPad)
                     .textContentType(.telephoneNumber)
                     .submitLabel(.next)
 
-                IconSecureField(text: $password,
-                                placeholder: "Senha",
-                                systemImage: "lock")
+                IconSecureField(text: $viewModel.password, placeholder: "Senha", systemImage: "lock")
                     .textContentType(.newPassword)
                     .submitLabel(.next)
 
-                IconSecureField(text: $confirmPassword,
-                                placeholder: "Confirmar Senha",
-                                systemImage: "lock")
+                IconSecureField(text: $viewModel.confirmPassword, placeholder: "Confirmar Senha", systemImage: "lock")
                     .textContentType(.newPassword)
                     .submitLabel(.done)
             }
             .padding(.horizontal, DS.Spacing.pageLeading)
             .padding(.top, 24)
 
-//            Spacer(minLength: 0)
+            PrimaryButton(title: "Criar Conta", action: viewModel.createAccount)
+                .disabled(!viewModel.isFormValid)
+                .padding(.top, 24)
 
-            // CTA
-            PrimaryButton(title: "Criar Conta") {
-                onCreateAccount(fullName, email, phone, password)
-            }
-            .disabled(!isFormValid)
-            .padding(.top, 24)
-
-            // Link para login
-            Button(action: onGoToLogin) {
+            Button(action: viewModel.goToLogin) {
                 Text("Já tem uma conta? Voltar ao Login")
                     .font(.callout)
                     .fontWeight(.semibold)
@@ -103,9 +67,6 @@ struct RegisterView: View {
     }
 }
 
-// MARK: - Componentes Reutilizáveis
-
-/// Mesma tipografia do DS, mas centralizada (não altera o TitleText existente)
 struct TitleTextCentered: View {
     let text: String
     var body: some View {
@@ -118,7 +79,6 @@ struct TitleTextCentered: View {
     }
 }
 
-/// Campo com ícone à esquerda (texto comum)
 struct IconTextField: View {
     @Binding var text: String
     let placeholder: String
@@ -154,7 +114,6 @@ struct IconTextField: View {
     }
 }
 
-/// Campo com ícone à esquerda (seguro)
 struct IconSecureField: View {
     @Binding var text: String
     let placeholder: String
@@ -205,7 +164,7 @@ struct IconSecureField: View {
 // MARK: - Previews
 
 #Preview("RegisterView") {
-    RegisterView()
+    RegisterView(viewModel: RegisterViewModel())
         .previewDisplayName("Cadastro")
         .padding(.vertical, 8)
 }
