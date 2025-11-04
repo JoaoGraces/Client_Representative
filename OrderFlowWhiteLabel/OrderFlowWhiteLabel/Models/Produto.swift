@@ -11,7 +11,11 @@ struct Produto: Codable, Identifiable {
     let id: UUID
     let distribuidoraId: UUID
     let nome: String
-    let descricao: String
-    let preco: Decimal
+    let quantidade: Int
+    let precoUnidade: Double
+    var preco: Double { Double(quantidade) * precoUnidade }
     let estoque: Int
+    var descricao: String {
+        "\(quantidade) x R$ \(precoUnidade.formattedMoney)/un."
+    }
 }
