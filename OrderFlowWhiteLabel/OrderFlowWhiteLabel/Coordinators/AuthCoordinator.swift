@@ -7,15 +7,20 @@
 
 import SwiftUI
 
-enum NavigationRoute: Hashable {
+enum AuthRoute: Hashable {
     case register
 }
 
 @MainActor
-final class MainCoordinator: ObservableObject {
+final class AuthCoordinator: ObservableObject {
     @Published var navigationStack = NavigationPath()
+    weak var rootCoordinator: RootCoordinator?
     
-    func go(to route: NavigationRoute) {
+    init(rootCoordinator: RootCoordinator?) {
+        self.rootCoordinator = rootCoordinator
+    }
+    
+    func go(to route: AuthRoute) {
         navigationStack.append(route)
     }
     
@@ -31,12 +36,16 @@ final class MainCoordinator: ObservableObject {
         }
     }
     
+    func completeAuthentication() {
+        rootCoordinator?.completeAuthentication()
+    }
+    
     func makeRegisterViewModel() -> some RegisterViewModeling {
-        return RegisterViewModel()
+        return RegisterViewModel(coordinator: self)
     }
     
     @ViewBuilder
-    func makeView(to route: NavigationRoute) -> some View {
+    func makeView(to route: AuthRoute) -> some View {
         switch route {
         case .register:
             let viewModel = makeRegisterViewModel()
@@ -45,16 +54,19 @@ final class MainCoordinator: ObservableObject {
     }
 }
 
-struct MainCoordinatorView: View {
-    @StateObject private var coordinator = MainCoordinator()
+struct AuthCoordinatorView: View {
+    @StateObject private var coordinator: AuthCoordinator
+    
+    init(rootCoordinator: RootCoordinator) {
+        _coordinator = StateObject(wrappedValue: AuthCoordinator(rootCoordinator: rootCoordinator))
+    }
 
     var body: some View {
         NavigationStack(path: $coordinator.navigationStack) {
             coordinator.makeView(to: .register)
-                .navigationDestination(for: NavigationRoute.self) { route in
+                .navigationDestination(for: AuthRoute.self) { route in
                     coordinator.makeView(to: route)
                 }
         }
-        .environmentObject(coordinator)
     }
 }

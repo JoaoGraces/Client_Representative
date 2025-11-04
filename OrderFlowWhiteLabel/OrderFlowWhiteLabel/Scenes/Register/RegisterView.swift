@@ -163,8 +163,8 @@ struct IconSecureField: View {
 
 // MARK: - Previews
 
-#Preview("RegisterView") {
-    RegisterView(viewModel: RegisterViewModel())
-        .previewDisplayName("Cadastro")
-        .padding(.vertical, 8)
-}
+//#Preview("RegisterView") {
+//    RegisterView(viewModel: RegisterViewModel())
+//        .previewDisplayName("Cadastro")
+//        .padding(.vertical, 8)
+//}

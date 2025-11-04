@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 protocol RegisterViewModeling: ObservableObject {
     var fullName: String { get set }
@@ -36,9 +37,17 @@ class RegisterViewModel: RegisterViewModeling {
     }
     
     @Published private(set) var isFormValid: Bool = false
+    
+    private let coordinator: AuthCoordinator
+        
+    init(coordinator: AuthCoordinator) {
+        self.coordinator = coordinator
+    }
 
     func createAccount() {
-
+        Task { @MainActor in
+            coordinator.completeAuthentication()
+        }
     }
     
     func goToLogin() {
