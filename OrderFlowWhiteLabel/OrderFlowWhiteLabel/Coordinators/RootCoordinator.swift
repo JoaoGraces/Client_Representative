@@ -13,13 +13,21 @@ final class RootCoordinator: ObservableObject {
         case auth
         case clientApp
         case representativeApp
+        case pending
     }
 
     @Published var currentFlow: RootFlow = .auth
     
-    func completeAuthentication() {
+    func completeAuthentication(role: UserRole) {
         withAnimation {
-            currentFlow = .clientApp
+            switch role {
+            case .pending:
+                currentFlow = .pending
+            case .client:
+                currentFlow = .clientApp
+            case .representative:
+                currentFlow = .representativeApp
+            }
         }
     }
 }
@@ -37,6 +45,9 @@ struct RootCoordinatorView: View {
             
         case .representativeApp:
             RepresentativeCoordinatorView()
+            
+        case .pending:
+            PendingView()
         }
     }
 }

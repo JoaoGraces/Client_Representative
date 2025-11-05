@@ -50,9 +50,18 @@ struct RegisterView<ViewModel: RegisterViewModeling>: View {
             .padding(.horizontal, DS.Spacing.pageLeading)
             .padding(.top, 24)
 
-            PrimaryButton(title: "Criar Conta", action: viewModel.createAccount)
-                .disabled(!viewModel.isFormValid)
-                .padding(.top, 24)
+            if viewModel.isLoading {
+                ProgressView()
+                    .padding()
+            } else {
+                PrimaryButton(title: "Criar Conta") {
+                    Task {
+                        await viewModel.createAccount()
+                    }
+                }
+                    .disabled(!viewModel.isFormValid)
+                    .padding(.top, 24)
+            }
 
             Button(action: viewModel.goToLogin) {
                 Text("Já tem uma conta? Voltar ao Login")

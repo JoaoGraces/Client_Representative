@@ -16,8 +16,9 @@ protocol RegisterViewModeling: ObservableObject {
     var confirmPassword: String { get set }
     
     var isFormValid: Bool { get }
+    var isLoading: Bool { get }
     
-    func createAccount()
+    func createAccount() async
     func goToLogin()
 }
 
@@ -37,6 +38,7 @@ class RegisterViewModel: RegisterViewModeling {
     }
     
     @Published private(set) var isFormValid: Bool = false
+    @Published private(set) var isLoading: Bool = false
     
     private let coordinator: AuthCoordinator
         
@@ -44,14 +46,28 @@ class RegisterViewModel: RegisterViewModeling {
         self.coordinator = coordinator
     }
 
-    func createAccount() {
-        Task { @MainActor in
-            coordinator.completeAuthentication()
+    func createAccount() async {
+        await MainActor.run {
+            isLoading = true
+        }
+        
+        do {
+            try await AuthService.shared.register(email: email, password: password)
+            
+            await coordinator.completeAuthentication(role: .pending)
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        await MainActor.run {
+            isLoading = false
         }
     }
     
     func goToLogin() {
-        
+        Task { @MainActor in
+            coordinator.switchTo(route: .login)
+        }
     }
     
     private func validateForm() {
