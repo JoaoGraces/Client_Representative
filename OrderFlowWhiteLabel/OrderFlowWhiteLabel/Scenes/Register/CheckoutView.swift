@@ -46,17 +46,6 @@ struct TotalRibbon: View {
     }
 }
 
-extension Double {
-    var formattedMoney: String {
-        let f = NumberFormatter()
-        f.locale = Locale(identifier: "pt_BR")
-        f.numberStyle = .decimal
-        f.minimumFractionDigits = 2
-        f.maximumFractionDigits = 2
-        return f.string(from: NSNumber(value: self)) ?? String(format: "%.2f", self)
-    }
-}
-
 struct OrderItemRow: View {
     let item: Produto
     var body: some View {
@@ -82,11 +71,14 @@ struct OrderItemRow: View {
 struct CheckoutView: View {
     let items: [Produto]
     let deliveryFee: Double
+
+    @State private var path = NavigationPath()
+
     var subtotal: Double { items.reduce(0) { $0 + $1.preco } }
     var total: Double { subtotal + deliveryFee }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             VStack(spacing: 16) {
                 ScrollView {
                     VStack(spacing: 16) {
@@ -97,18 +89,20 @@ struct CheckoutView: View {
                                 if idx < items.count - 1 { DSInsetDivider() }
                             }
                         }
-                        
+
                         DSCard {
                             DSSectionHeader(title: "Resumo do Pedido")
                             KeyValueRow(key: "Subtotal", value: "R$ \(subtotal.formattedMoney)")
                             KeyValueRow(key: "Entrega", value: "R$ \(deliveryFee.formattedMoney)")
                             TotalRibbon(title: "Total", value: "R$ \(total.formattedMoney)")
                         }
-                        
+
                         VStack(spacing: 12) {
-                            PrimaryButton(title: "Enviar Pedido") {}
-                            SecondaryButton(title: "Editar Pedido") {}
-                            DangerButton(title: "Cancelar Pedido") {}
+                            PrimaryButton(title: "Enviar Pedido") {
+                                enviarPedido()
+                            }
+                            SecondaryButton(title: "Editar Pedido") { /* ação */ }
+                            DangerButton(title: "Cancelar Pedido") { /* ação */ }
                         }
                     }
                     .padding(.bottom, 24)
@@ -118,7 +112,39 @@ struct CheckoutView: View {
             .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle("Conferir Pedido")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(for: OrderConfirmation.self) { conf in
+                OrderSentView(
+                        viewModel: OrderSentViewModel(
+                            data: conf,
+                            onBackToCatalog: { path = NavigationPath() },
+                            onSeeMyOrders: { /* navegar para "Meus Pedidos" */ }
+                        )
+                    )
+            }
         }
+    }
+
+    private func enviarPedido() {
+        let novoPedido = Pedido(
+            id: UUID(),
+            empresaClienteId: UUID(),
+            usuarioCriadorId: UUID(),
+            representanteId: UUID(),
+            status: .criado, // ou .criado -> .enviado após request ao backend
+            dataEntregaSolicitada: Calendar.current.date(byAdding: .day, value: 2, to: Date()) ?? Date(),
+            dataVencimentoPagamento: Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date(),
+            statusRecebimento: nil,
+            observacoesCliente: nil,
+            dataCriacao: Date()
+        )
+
+        let confirmation = OrderConfirmation(
+            pedido: novoPedido,
+            itens: items,
+            taxaEntrega: deliveryFee
+        )
+
+        path.append(confirmation)
     }
 }
 

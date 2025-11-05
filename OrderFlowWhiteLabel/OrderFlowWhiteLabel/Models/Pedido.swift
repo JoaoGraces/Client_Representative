@@ -6,7 +6,7 @@
 //
 import Foundation
 
-struct Pedido: Codable, Identifiable {
+struct Pedido: Codable, Identifiable, Hashable {
     let id: UUID
     let empresaClienteId: UUID
     let usuarioCriadorId: UUID

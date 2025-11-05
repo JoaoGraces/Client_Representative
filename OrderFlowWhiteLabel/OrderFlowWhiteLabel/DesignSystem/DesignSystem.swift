@@ -208,3 +208,23 @@ struct CircleCheckIcon: View {
         .frame(width: size, height: size)
     }
 }
+
+extension Double {
+    var formattedMoney: String {
+        let f = NumberFormatter()
+        f.locale = Locale(identifier: "pt_BR")
+        f.numberStyle = .decimal
+        f.minimumFractionDigits = 2
+        f.maximumFractionDigits = 2
+        return f.string(from: NSNumber(value: self)) ?? String(format: "%.2f", self)
+    }
+}
+
+private extension DateFormatter {
+    static let ptLong: DateFormatter = {
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "pt_BR")
+        df.dateFormat = "d 'de' MMMM, yyyy"
+        return df
+    }()
+}
