@@ -7,11 +7,24 @@
 
 import Foundation
 
-struct Produto: Codable, Identifiable {
+import Foundation
+
+struct ProductModel: Codable, Identifiable, Equatable {
     let id: UUID
     let distribuidoraId: UUID
-    let nome: String
-    let descricao: String
-    let preco: Decimal
-    let estoque: Int
+    let name: String
+    let description: String
+    let price: Float
+    let stock: Int
+    
+    let imageName: String
+    let tagText: String
+    
+    var formattedPrice: String {
+        String(format: "R$ %.2f", price)
+    }
+    
+    var isOutOfStock: Bool {
+        stock <= 0
+    }
 }

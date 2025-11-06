@@ -11,15 +11,21 @@ import SwiftUI
 
 // MARK: - Design Tokens
 
+import SwiftUI
+
 enum DS {
     enum Colors {
-        // Hex originais com alpha FF
         static let neutral900 = Color(red: 0x17/255, green: 0x1A/255, blue: 0x1F/255) // #171A1F
+        static let neutral600 = Color(red: 0x56/255, green: 0x5D/255, blue: 0x6D/255) // #565D6D
+        static let neutral300 = Color(red: 0xDE/255, green: 0xE1/255, blue: 0xE6/255) // #DEE1E6
         static let white      = Color.white
+        
         static let blueBase   = Color(red: 0x37/255, green: 0x6F/255, blue: 0xC8/255) // #376FC8
         static let blueHover  = Color(red: 0x24/255, green: 0x49/255, blue: 0x84/255) // #244984
         static let bluePress  = Color(red: 0x17/255, green: 0x2F/255, blue: 0x55/255) // #172F55
-        // Sombras (aprox. do CSS)
+        
+        static let redBase    = Color(red: 0xBA/255, green: 0x45/255, blue: 0x4D/255) // #BA454D
+        
         static let shadowXS1  = Color.black.opacity(0.82) // 0x171a1fD ≈ 82%
         static let shadowXS2  = Color.black.opacity(0.08) // 0x171a1f14 ≈ 8%
     }
@@ -43,6 +49,33 @@ enum DS {
                 return .system(size: 30, weight: .bold, design: .default)
             }
         }
+        
+        /// Title3 (Roboto Medium 16/26). Usa Dynamic Type.
+        static func title3() -> Font {
+            if UIFont.familyNames.contains(where: { $0.localizedCaseInsensitiveContains("Roboto") }) {
+                return .custom("Roboto-Medium", size: 16, relativeTo: .headline)
+            } else {
+                return .system(.headline, design: .default)
+            }
+        }
+        
+       
+        static func caption() -> Font {
+            if UIFont.familyNames.contains(where: { $0.localizedCaseInsensitiveContains("Roboto") }) {
+                return .custom("Roboto-Medium", size: 12, relativeTo: .caption)
+            } else {
+                return .system(.headline, design: .default)
+            }
+        }
+        
+       
+        static func body2() -> Font {
+            if UIFont.familyNames.contains(where: { $0.localizedCaseInsensitiveContains("Roboto") }) {
+                return .custom("Roboto-Medium", size: 14, relativeTo: .footnote)
+            } else {
+                return .system(.headline, design: .default)
+            }
+        }
 
         /// Body/Buttons (Roboto Medium 18/28). Usa Dynamic Type.
         static func button() -> Font {
@@ -52,6 +85,8 @@ enum DS {
                 return .system(.headline, design: .default)
             }
         }
+        
+     
     }
 
     enum Shadow {
@@ -64,6 +99,17 @@ enum DS {
         }
     }
 }
+
+extension Color {
+    init(hex: UInt32) {
+        let r = Double((hex & 0xFF000000) >> 24) / 255
+        let g = Double((hex & 0x00FF0000) >> 16) / 255
+        let b = Double((hex & 0x0000FF00) >> 8) / 255
+        let a = Double(hex & 0x000000FF) / 255
+        self.init(red: r, green: g, blue: b, opacity: a)
+    }
+}
+
 
 // MARK: - Title Text (Componente)
 
