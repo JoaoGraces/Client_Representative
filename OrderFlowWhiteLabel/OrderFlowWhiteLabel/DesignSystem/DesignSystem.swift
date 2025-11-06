@@ -12,13 +12,16 @@ enum DS {
         static let redBase    = Color(red: 0xC4/255, green: 0x4B/255, blue: 0x4B/255)
         static let neutral700 = DS.Colors.neutral900.opacity(0.75)
         static let neutral300 = DS.Colors.neutral900.opacity(0.12)
+        static let golden     = Color(red: 0xBE/255, green: 0x81/255, blue: 0x01/255)
     }
     
     enum Radius {
         static let sm: CGFloat = 6
+        static let pill: CGFloat = 20
     }
     
     enum Spacing {
+        static let smallPadding: CGFloat = 8
         static let insetX: CGFloat = 12
         static let buttonHeight: CGFloat = 48
         static let pageLeading: CGFloat = 16
@@ -202,6 +205,35 @@ struct DSCard<Content: View>: View {
     }
 }
 
+struct DSCard2<Content: View>: View {
+    let content: Content
+    init(@ViewBuilder content: () -> Content) { self.content = content() }
+    var body: some View {
+        VStack(spacing: 0) { content }
+            .background(
+                RoundedRectangle(cornerRadius: DS.Radius.sm)
+                    .stroke(DS.Colors.shadowXS2, lineWidth: 2)
+                    .fill(DS.Colors.white)
+                    .background(DS.Shadow.xs())
+            )
+            .padding(.horizontal, DS.Spacing.pageLeading)
+    }
+}
+
+struct DSTextFieldCard<Content: View>: View {
+    let content: Content
+    init(@ViewBuilder content: () -> Content) { self.content = content() }
+    var body: some View {
+        VStack(spacing: 0) { content }
+            .background(
+                RoundedRectangle(cornerRadius: DS.Radius.sm)
+                    .fill(DS.Colors.shadowXS2)
+                    .background(DS.Shadow.xs())
+            )
+            .padding(.horizontal, DS.Spacing.pageLeading)
+    }
+}
+
 struct DSSectionHeader: View {
     let title: String
     var body: some View {
@@ -214,12 +246,33 @@ struct DSSectionHeader: View {
     }
 }
 
+struct DSHilightValue: View {
+    let title: String
+    var body: some View {
+        Text(title)
+            .font(DS.Typography.sectionTitle())
+            .foregroundStyle(DS.Colors.blueBase)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+            .padding(.horizontal, DS.Spacing.insetX)
+            .padding(.bottom, 8)
+    }
+}
+
+
 struct DSInsetDivider: View {
     var body: some View {
         Rectangle()
             .fill(DS.Colors.neutral300)
             .frame(height: 1 / UIScreen.main.scale)
             .padding(.horizontal, DS.Spacing.insetX)
+    }
+}
+
+struct DSFullInsetDivider: View {
+    var body: some View {
+        Rectangle()
+            .fill(DS.Colors.neutral300)
+            .frame(height: 2 / UIScreen.main.scale)
     }
 }
 
@@ -265,7 +318,7 @@ extension Double {
     }
 }
 
-private extension DateFormatter {
+extension DateFormatter {
     static let ptLong: DateFormatter = {
         let df = DateFormatter()
         df.locale = Locale(identifier: "pt_BR")

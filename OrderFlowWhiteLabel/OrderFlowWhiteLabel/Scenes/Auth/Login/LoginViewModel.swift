@@ -13,6 +13,7 @@ protocol LoginViewModeling: ObservableObject {
     var password: String { get set }
     
     func login() async
+    func goToRegister()
 }
 
 class LoginViewModel: LoginViewModeling {
@@ -45,5 +46,9 @@ class LoginViewModel: LoginViewModeling {
         }
     }
     
-
+    func goToRegister() {
+        Task { @MainActor in
+            coordinator.switchTo(route: .register)
+        }
+    }
 }

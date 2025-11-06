@@ -51,6 +51,8 @@ struct OrderConfirmation: Hashable {
         case .enviado: return "Enviado"
         case .entregue: return "Entregue"
         case .finalizado: return "Finalizado"
+        case .cancelamento: return "Cancelado"
+        case .alteracao: return "Alteração"
         }
     }
 
