@@ -10,7 +10,7 @@ import SwiftUI
 import SwiftUI
 
 struct CatalogListView: View {
-    @StateObject private var viewModel = ProductListViewModel()
+    @ObservedObject var viewModel: ProductListViewModel
     
     private let gridColumns = [
         GridItem(.flexible(), spacing: 16),
@@ -24,7 +24,7 @@ struct CatalogListView: View {
                     ForEach(viewModel.products) { product in
                         ProductItemView(
                             imageURL: product.imageName,
-                            name: product.name,
+                            name: product.nome,
                             price: product.formattedPrice,
                             tagText: product.tagText
                         ) {
@@ -56,5 +56,5 @@ struct CatalogListView: View {
 }
 
 #Preview {
-    CatalogListView()
+    CatalogListView(viewModel: ProductListViewModel())
 }

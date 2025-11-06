@@ -7,8 +7,9 @@
 
 import Foundation
 
-struct CartItemModel: Identifiable, Equatable {
+struct CartItemModel: Identifiable, Equatable, Hashable {
     let id = UUID()
-    let product: ProductModel
+    let product: Produto
     var quantity: Int
+    var price: Double { Double(self.quantity) * self.product.precoUnidade}
 }

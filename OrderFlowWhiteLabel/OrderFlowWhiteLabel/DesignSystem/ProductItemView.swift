@@ -32,7 +32,7 @@ struct ProductItemView: View {
     let imageURL: String
     let name: String
     let price: String
-    let tagText: String?
+    let tagText: String? 
     let onAdd: () -> Void
     
     // MARK: - Body
@@ -42,9 +42,9 @@ struct ProductItemView: View {
                 CachedAsyncImage(url: URL(string: imageURL), height: Layout.imageHeight)
 
                 if let tagText {
-                    TagView(text: tagText)
-                        .padding(.top, Layout.tagTopPadding)
-                        .padding(.leading, Layout.tagLeadingPadding)
+   //                 TagView(text: tagText)
+   //                     .padding(.top, Layout.tagTopPadding)
+   //                     .padding(.leading, Layout.tagLeadingPadding)
                 }
             }
             

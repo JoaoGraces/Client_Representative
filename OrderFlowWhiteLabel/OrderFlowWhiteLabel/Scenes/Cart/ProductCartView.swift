@@ -21,7 +21,9 @@ struct ProductCartItemView: View {
     var minQuantity = 1
     var maxQuantity = 99
 
-    @State private var quantity: Int = 1
+    @Binding var quantity: Int
+    let onIncrease: () -> Void
+    let onDecrease: () -> Void
 
     private var totalPrice: Double { unitPrice * Double(quantity) }
 
@@ -37,6 +39,7 @@ struct ProductCartItemView: View {
             
             HStack(alignment: .center, spacing: Layout.spacing) {
                 CachedAsyncImage(url: URL(string: imageURL), height: Layout.imageSize)
+                    .scaledToFit()
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .frame(width: Layout.imageSize, height: Layout.imageSize)
                 
@@ -46,9 +49,10 @@ struct ProductCartItemView: View {
                         .foregroundColor(DS.Colors.neutral900)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
+                    
                     Text("Unidade: \(unitPrice, specifier: "%.2f")")
                         .font(DS.Typography.caption())
-                        .foregroundColor(DS.Colors.neutral600)
+                        .foregroundColor(DS.Colors.neutral700)
                         .minimumScaleFactor(0.8)
                 }
 
@@ -58,7 +62,9 @@ struct ProductCartItemView: View {
                     quantity: $quantity,
                     min: minQuantity,
                     max: maxQuantity,
-                    buttonSize: Layout.buttonSize
+                    buttonSize: Layout.buttonSize,
+                    onIncrease: onIncrease,
+                    onDecrease: onDecrease
                 )
                 .frame(width: Layout.controlsWidth)
             }
@@ -82,12 +88,15 @@ private struct QuantityControl: View {
     let min: Int
     let max: Int
     let buttonSize: CGFloat
+    let onIncrease: () -> Void
+    let onDecrease: () -> Void
 
     var body: some View {
         HStack(spacing: 8) {
             Button {
+                guard quantity > min else { return }
                 withAnimation(.easeInOut(duration: 0.12)) {
-                    quantity = Swift.max(min, quantity - 1)
+                    onDecrease()
                 }
             } label: {
                 Image(systemName: "minus")
@@ -99,17 +108,16 @@ private struct QuantityControl: View {
                             .stroke(DS.Colors.neutral300, lineWidth: 1)
                     )
             }
-            .disabled(quantity <= min)
-            .opacity(quantity <= min ? 0.5 : 1)
-
+            .buttonStyle(.plain)
             Text("\(quantity)")
                 .font(DS.Typography.body2())
                 .foregroundColor(DS.Colors.neutral900)
                 .frame(minWidth: 30)
 
             Button {
+                guard quantity < max else { return }
                 withAnimation(.easeInOut(duration: 0.12)) {
-                    quantity = Swift.min(max, quantity + 1)
+                    onIncrease()
                 }
             } label: {
                 Image(systemName: "plus")
@@ -119,18 +127,21 @@ private struct QuantityControl: View {
                     .foregroundColor(DS.Colors.white)
                     .clipShape(Circle())
             }
-            .disabled(quantity >= max)
-            .opacity(quantity >= max ? 0.5 : 1)
+            .buttonStyle(.plain)
         }
     }
 }
 
 // MARK: - Preview
 #Preview {
+    @State var quantity = 1
     ProductCartItemView(
-        title: "Camiseta Dry Fit Esportiva ",
+        title: "Camiseta Dry Fit Esportiva",
         imageURL: "https://picsum.photos/200",
-        unitPrice: 149.99
+        unitPrice: 149.99,
+        quantity: $quantity,
+        onIncrease: { print("Aumentou!") },
+        onDecrease: { print("Diminuiu!") }
     )
     .padding()
     .background(DS.Colors.neutral300.opacity(0.05))
