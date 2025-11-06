@@ -43,9 +43,7 @@ final class CatalogCoordinator: ObservableObject {
     }
     
     @ViewBuilder
-    func makeStartView() -> some View {
-//        let viewModel = makeCatalogViewModel()
-//        CatalogView(viewModel: viewModel)
-        Text("Catalog")
+    func makeStartView(viewModel: ProductListViewModel) -> some View {
+        CatalogListView(viewModel: viewModel)
     }
 }

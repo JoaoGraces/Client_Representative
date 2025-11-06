@@ -18,6 +18,13 @@ struct LoginView<ViewModel: LoginViewModeling>: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 16) {
+                TitleTextCentered(text: "Bem-vindo ao OrderFlow")
+                
+                Text("Faça login na sua conta")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(DS.Colors.neutral900.opacity(0.7))
+                    .padding(.horizontal, 32)
+                
                 IconTextField(text: $viewModel.email, placeholder: "E-mail", systemImage: "envelope", keyboard: .emailAddress, autocapitalization: .never)
                     .textContentType(.emailAddress)
                     .submitLabel(.next)
@@ -32,6 +39,14 @@ struct LoginView<ViewModel: LoginViewModeling>: View {
                     }
                 }
                 .padding(.top, 24)
+                
+                Button(action: viewModel.goToRegister) {
+                    Text("Já tem uma conta? Voltar ao Login")
+                        .font(.callout)
+                        .fontWeight(.semibold)
+                }
+                .tint(DS.Colors.blueBase)
+                .padding(.vertical, 16)
             }
             .padding(.horizontal, DS.Spacing.pageLeading)
             .padding(.top, 24)

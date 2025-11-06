@@ -30,7 +30,7 @@ struct MyOrdersView<ViewModel: MyOrdersViewModeling>: View {
                         DSCard2 {
                             if let empresa = viewModel.empresa,  let item = viewModel.item {
                                 OrderCell(order: order, empresa: empresa, item: item, action: {
-                                    viewModel.goToDetails(order: order)
+                                    viewModel.goToValidate(order: order)
                                 })
                                     .padding(DS.Spacing.insetX)
                             }

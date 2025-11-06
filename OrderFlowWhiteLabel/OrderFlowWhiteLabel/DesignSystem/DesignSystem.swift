@@ -14,63 +14,84 @@ enum DS {
         static let neutral300 = DS.Colors.neutral900.opacity(0.12)
         static let golden     = Color(red: 0xBE/255, green: 0x81/255, blue: 0x01/255)
     }
-
+    
     enum Radius {
         static let sm: CGFloat = 6
         static let pill: CGFloat = 20
     }
-
+    
     enum Spacing {
         static let smallPadding: CGFloat = 8
         static let insetX: CGFloat = 12
         static let buttonHeight: CGFloat = 48
         static let pageLeading: CGFloat = 16
     }
-
+    
     enum Typography {
         static func title() -> Font {
             UIFont.familyNames.contains(where: { $0.localizedCaseInsensitiveContains("Roboto") })
             ? .custom("Roboto-Bold", size: 30, relativeTo: .title2)
             : .system(size: 30, weight: .bold)
         }
-
+        
+        /// Title3 (Roboto Medium 16/26). Usa Dynamic Type.
+        static func title3() -> Font {
+            if UIFont.familyNames.contains(where: { $0.localizedCaseInsensitiveContains("Roboto") }) {
+                return .custom("Roboto-Medium", size: 16, relativeTo: .headline)
+            } else {
+                return .system(.headline, design: .default)
+            }
+        }
+        
+        static func body2() -> Font {
+            if UIFont.familyNames.contains(where: { $0.localizedCaseInsensitiveContains("Roboto") }) {
+                return .custom("Roboto-Medium", size: 14, relativeTo: .footnote)
+            } else {
+                return .system(.headline, design: .default)
+            }
+        }
+        
         static func button() -> Font {
             UIFont.familyNames.contains(where: { $0.localizedCaseInsensitiveContains("Roboto") })
             ? .custom("Roboto-Medium", size: 18, relativeTo: .headline)
             : .system(.headline)
         }
-
+        
         static func body() -> Font {
             UIFont.familyNames.contains(where: { $0.localizedCaseInsensitiveContains("Roboto") })
             ? .custom("Roboto-Regular", size: 16, relativeTo: .body)
             : .system(.body)
         }
-
+        
         static func bodySemibold() -> Font {
             UIFont.familyNames.contains(where: { $0.localizedCaseInsensitiveContains("Roboto") })
             ? .custom("Roboto-Medium", size: 16, relativeTo: .body)
             : .system(size: 16, weight: .semibold)
         }
-
+        
         static func sectionTitle() -> Font {
             UIFont.familyNames.contains(where: { $0.localizedCaseInsensitiveContains("Roboto") })
             ? .custom("Roboto-Medium", size: 18, relativeTo: .headline)
             : .system(size: 18, weight: .semibold)
         }
-
+        
         static func caption() -> Font {
             UIFont.familyNames.contains(where: { $0.localizedCaseInsensitiveContains("Roboto") })
             ? .custom("Roboto-Regular", size: 14, relativeTo: .caption)
             : .system(.caption)
         }
-
+        
         static func displaySuccess() -> Font {
             UIFont.familyNames.contains(where: { $0.localizedCaseInsensitiveContains("Roboto") })
             ? .custom("Roboto-Bold", size: 24, relativeTo: .title3)
             : .system(size: 24, weight: .bold)
         }
     }
-
+    
+    enum Border {
+        static let hairline: CGFloat = 1
+    }
+    
     enum Shadow {
         static func xs() -> some View {
             EmptyView()
@@ -78,9 +99,33 @@ enum DS {
                 .shadow(color: Colors.shadowXS2, radius: 2)
         }
     }
+}
 
-    enum Border {
-        static let hairline: CGFloat = 1
+extension Color {
+    init(hex: UInt32) {
+        let r = Double((hex & 0xFF000000) >> 24) / 255
+        let g = Double((hex & 0x00FF0000) >> 16) / 255
+        let b = Double((hex & 0x0000FF00) >> 8) / 255
+        let a = Double(hex & 0x000000FF) / 255
+        self.init(red: r, green: g, blue: b, opacity: a)
+    }
+}
+
+
+// MARK: - Title Text (Componente)
+
+struct TitleText: View {
+    let text: String
+    
+    var body: some View {
+        Text(text)
+            .font(DS.Typography.title())
+            .foregroundStyle(DS.Colors.neutral900)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, DS.Spacing.pageLeading)
+            .padding(.top, 0) // mantém top = 0 da sua spec (layout cuida do resto)
+            .accessibilityAddTraits(.isHeader)
+
     }
 }
 

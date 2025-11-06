@@ -18,12 +18,13 @@ struct ClientCoordinatorView: View {
     @StateObject private var cartCoordinator = CartCoordinator()
     @StateObject private var ordersCoordinator = OrdersCoordinator()
 
+    @StateObject private var sharedViewModel = ProductListViewModel()
     @State private var selectedTab: ClientTab = .catalog
 
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack(path: $catalogCoordinator.navigationStack) {
-                catalogCoordinator.makeStartView()
+                catalogCoordinator.makeStartView(viewModel: sharedViewModel)
                     .navigationDestination(for: CatalogRoute.self) { route in
                         catalogCoordinator.makeView(to: route)
                     }
@@ -34,7 +35,7 @@ struct ClientCoordinatorView: View {
             .tag(ClientTab.catalog)
             
             NavigationStack(path: $cartCoordinator.navigationStack) {
-                cartCoordinator.makeStartView()
+                cartCoordinator.makeStartView(viewModel: sharedViewModel)
                     .navigationDestination(for: CartRoute.self) { route in
                         cartCoordinator.makeView(to: route)
                     }
