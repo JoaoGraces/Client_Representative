@@ -46,7 +46,7 @@ final class RepresentativeCoordinator: ObservableObject {
                 case .enviado:
                     SentView()
                 case .alteracao:
-                    ModificationView()
+                    ModificationAuthorizationView()
                 case .novoPedido:
                     NewOrderView()
                 }

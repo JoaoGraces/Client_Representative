@@ -175,6 +175,6 @@ extension OrderModificationDetails {
 // MARK: - Preview
 #Preview {
     NavigationView {
-        ModificationView(modificationDetails: .mock)
+        ModificationAuthorizationView(modificationDetails: .mock)
     }
 }
