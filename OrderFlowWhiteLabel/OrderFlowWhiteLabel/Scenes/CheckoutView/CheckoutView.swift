@@ -47,19 +47,19 @@ struct TotalRibbon: View {
 }
 
 struct OrderItemRow: View {
-    let item: Produto
+    let item: CartItemModel
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .firstTextBaseline) {
-                Text(item.nome)
+                Text(item.product.nome)
                     .font(DS.Typography.body())
                     .foregroundStyle(DS.Colors.neutral900)
                 Spacer()
-                Text("R$ \(item.preco.formattedMoney)")
+                Text("R$ \(item.price.formattedMoney)")
                     .font(DS.Typography.body())
                     .foregroundStyle(DS.Colors.neutral900)
             }
-            Text(item.descricao)
+            Text("\(item.quantity) x R$ \(item.product.precoUnidade.formattedMoney)/un.")
                 .font(DS.Typography.caption())
                 .foregroundStyle(DS.Colors.neutral700)
         }
@@ -69,16 +69,17 @@ struct OrderItemRow: View {
 }
 
 struct CheckoutView: View {
-    let items: [Produto]
+    let items: [CartItemModel]
     let deliveryFee: Double
 
-    @State private var path = NavigationPath()
+    @ObservedObject var coordinator: CartCoordinator
+    @ObservedObject var viewModel: ProductListViewModel
 
-    var subtotal: Double { items.reduce(0) { $0 + $1.preco } }
+    var subtotal: Double { items.reduce(0) { $0 + $1.price } }
     var total: Double { subtotal + deliveryFee }
 
     var body: some View {
-        NavigationStack(path: $path) {
+
             VStack(spacing: 16) {
                 ScrollView {
                     VStack(spacing: 16) {
@@ -101,27 +102,18 @@ struct CheckoutView: View {
                             PrimaryButton(title: "Enviar Pedido") {
                                 enviarPedido()
                             }
-                            SecondaryButton(title: "Editar Pedido") { /* ação */ }
-                            DangerButton(title: "Cancelar Pedido") { /* ação */ }
+                            SecondaryButton(title: "Editar Pedido") { coordinator.back() }
+                            DangerButton(title: "Cancelar Pedido") { viewModel.clearCart()
+                                coordinator.backToRoot()
+                            }
                         }
                     }
                     .padding(.bottom, 24)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
-            .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle("Conferir Pedido")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(for: OrderConfirmation.self) { conf in
-                OrderSentView(
-                        viewModel: OrderSentViewModel(
-                            data: conf,
-                            onBackToCatalog: { path = NavigationPath() },
-                            onSeeMyOrders: { /* navegar para "Meus Pedidos" */ }
-                        )
-                    )
-            }
-        }
     }
 
     private func enviarPedido() {
@@ -140,23 +132,23 @@ struct CheckoutView: View {
 
         let confirmation = OrderConfirmation(
             pedido: novoPedido,
-            itens: items,
+            itens: items.map { $0.product },
             taxaEntrega: deliveryFee
         )
 
-        path.append(confirmation)
+        coordinator.go(to: .orderConfirmation(confirmation))
     }
 }
 
 #Preview {
     CheckoutView(
         items: [
-            Produto(id: .init(), distribuidoraId: .init(), nome: "Café Expresso Duplo", quantidade: 2, precoUnidade: 8.50, estoque: 100),
-            Produto(id: .init(), distribuidoraId: .init(), nome: "Pão de Queijo Recheado", quantidade: 3, precoUnidade: 6.00, estoque: 50),
-            Produto(id: .init(), distribuidoraId: .init(), nome: "Suco de Laranja Natural 500ml", quantidade: 1, precoUnidade: 12.00, estoque: 30),
-            Produto(id: .init(), distribuidoraId: .init(), nome: "Bolo de Cenoura com Cobertura", quantidade: 1, precoUnidade: 15.00, estoque: 20),
-            Produto(id: .init(), distribuidoraId: .init(), nome: "Misto Quente na Chapa", quantidade: 2, precoUnidade: 10.00, estoque: 40)
+            CartItemModel(product: Produto(id: .init(), distribuidoraId: .init(), nome: "Café Expresso Duplo", quantidade: 2, precoUnidade: 8.50, estoque: 100, imageName: "", tagText: ""), quantity: 9),
+            CartItemModel(product: Produto(id: .init(), distribuidoraId: .init(), nome: "Pão de Queijo Recheado", quantidade: 3, precoUnidade: 6.00, estoque: 50, imageName: "", tagText: ""), quantity: 7),
+            CartItemModel(product: Produto(id: .init(), distribuidoraId: .init(), nome: "Suco de Laranja Natural 500ml", quantidade: 1, precoUnidade: 12.00, estoque: 30, imageName: "", tagText: ""), quantity: 6),
+            CartItemModel(product: Produto(id: .init(), distribuidoraId: .init(), nome: "Bolo de Cenoura com Cobertura", quantidade: 1, precoUnidade: 15.00, estoque: 20, imageName: "", tagText: ""), quantity: 2),
+            CartItemModel(product: Produto(id: .init(), distribuidoraId: .init(), nome: "Misto Quente na Chapa", quantidade: 2, precoUnidade: 10.00, estoque: 40, imageName: "", tagText: ""), quantity: 2)
         ],
-        deliveryFee: 7.50
+        deliveryFee: 7.50, coordinator: CartCoordinator(), viewModel: ProductListViewModel()
     )
 }
