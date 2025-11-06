@@ -8,6 +8,10 @@
 import SwiftUI
 
 enum RepresentativeRoute: Hashable {
+    case cancelamento
+    case enviado
+    case alteracao
+    case novoPedido
 }
 
 @MainActor
@@ -37,16 +41,22 @@ final class RepresentativeCoordinator: ObservableObject {
     @ViewBuilder
     func makeView(to route: RepresentativeRoute) -> some View {
         switch route {
-        default:
-            EmptyView()
-        }
+                case .cancelamento:
+                    CancellationView()
+                case .enviado:
+                    SentView()
+                case .alteracao:
+                    ModificationView()
+                case .novoPedido:
+                    NewOrderView()
+                }
     }
     
     @ViewBuilder
     func makeStartView() -> some View {
 //        let viewModel = makeRepresentativeViewModel()
 //        RepresentativeView(viewModel: viewModel)
-        Text("Representative")
+        MockListView(coordinator: self)
     }
 }
 
@@ -55,10 +65,17 @@ struct RepresentativeCoordinatorView: View {
     
     var body: some View {
         NavigationStack(path: $coordinator.navigationStack) {
+            coordinator.makeStartView()
+                .navigationDestination(for: RepresentativeRoute.self) { route in
+                    coordinator.makeView(to: route)
+                }
 //            coordinator.makeView(to: )
 //                .navigationDestination(for: RepresentativeRoute.self) { route in
 //                    coordinator.makeView(to: route)
 //                }
         }
     }
+}
+#Preview {
+    RepresentativeCoordinatorView()
 }
