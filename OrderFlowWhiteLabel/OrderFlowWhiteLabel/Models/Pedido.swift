@@ -5,6 +5,7 @@
 //  Created by Gabriel Ribeiro Noronha on 02/10/25.
 //
 import Foundation
+import SwiftUI
 
 struct Pedido: Codable, Identifiable, Hashable {
     let id: UUID
@@ -25,6 +26,38 @@ enum PedidoStatus: String, Codable {
     case enviado = "ENVIADO"
     case entregue = "ENTREGUE"
     case finalizado = "FINALIZADO"
+    case cancelamento = "CANCELAMENTO"
+    case alteracao = "ALTERAÇÃO"
+    
+    func message() -> String {
+        switch self {
+        case .criado:
+            return "Você tem um novo pedido para revisão."
+        case .validado:
+            return "Pedido Validado."
+        case .enviado:
+            return "Pedido Enviado."
+        case .entregue:
+            return "Pedido Entregue."
+        case .finalizado:
+            return "Pedido Finalizado."
+        case .cancelamento:
+            return "Pedido Cancelado."
+        case .alteracao:
+            return "Pedido Alterado."
+        }
+    }
+    
+    func getColor() -> Color {
+        switch self {
+        case .validado, .enviado, .entregue, .finalizado:
+            return DS.Colors.blueBase
+        case .criado:
+            return DS.Colors.white
+        case .cancelamento, .alteracao:
+            return DS.Colors.golden
+        }
+    }
 }
 
 enum StatusRecebimento: String, Codable {
