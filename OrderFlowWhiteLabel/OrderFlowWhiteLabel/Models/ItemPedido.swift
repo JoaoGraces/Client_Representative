@@ -13,4 +13,7 @@ struct ItemPedido: Codable, Identifiable {
     let produtoId: UUID
     let quantidade: Int
     let precoUnitarioMomento: Decimal
+    var valorTotal: Double {
+        return Double(quantidade) * Double(truncating: precoUnitarioMomento as NSNumber)
+    }
 }
