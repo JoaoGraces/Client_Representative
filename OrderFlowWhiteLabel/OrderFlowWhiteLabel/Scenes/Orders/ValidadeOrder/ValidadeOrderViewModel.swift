@@ -1,37 +1,45 @@
 //
-//  OrderDetailsViewModel.swift
+//  MyOrdersViewModel.swift
 //  OrderFlowWhiteLabel
 //
 //  Created by Scarllet Gomes on 06/11/25.
 //
 
+//TODO: Lidar com o erro
+//TODO: Fazer requisições no firebase
+//TODO: Navegação
+
 import Foundation
 import SwiftUI
 
-protocol OrderDetailsViewModeling: ObservableObject {
+protocol ValidadeOrderViewModeling: ObservableObject {
     var order: Pedido { get set }
+    var empresa: Empresa? { get set }
     var itens: [ItemPedido] { get }
     var produtos: [Produto] { get }
     
-    var empresa: Empresa? { get set }
-    var usuario: Usuario? { get set }
     var viewState: ViewState { get }
     
-    func calculateTotal() -> Double
     func fetchPipeline() async
-    func requestUpdate()
-    func cancelOrder()
+    
+    func calculateTotal() -> Double
+    
+    func aproveOrder()
+    func rejectOrder()
+    
+    @MainActor
+    func goToDetails(order: Pedido)
 }
 
 @Observable
-class OrderDetailsViewModel: OrderDetailsViewModeling {
+class ValidadeOrderViewModel: ValidadeOrderViewModeling {
+    var order: Pedido
+    var viewState: ViewState = .new
+    
     var itens: [ItemPedido] = []
     var produtos: [Produto] = []
-    var order: Pedido
     var empresa: Empresa?
     var usuario: Usuario?
-    
-    var viewState: ViewState = .new
     
     private let coordinator: OrdersCoordinator
     
@@ -40,9 +48,15 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
         self.order = pedido
     }
     
+    @MainActor
+    func goToDetails(order: Pedido) {
+        coordinator.go(to: .details(order: order))
+        self.order = order
+    }
+    
     func fetchPipeline() async {
         do {
-            try await fetchOrder()
+            try await fetchOrders()
         } catch {
             self.viewState = .error
         }
@@ -66,15 +80,15 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
         return itens.reduce(0) { $0 + $1.valorTotal }
     }
     
-    func requestUpdate() {
-        //TODO: Fazer chamada do FireBase
+    func aproveOrder() {
+        
     }
     
-    func cancelOrder() {
-        //TODO: Fazer chamada do FireBase
+    func rejectOrder() {
+        
     }
     
-    private func fetchOrder() async throws {
+    private func fetchOrders() async throws {
         let pedidoMock = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .alteracao, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la", dataCriacao: Date())
         
         self.order = pedidoMock
@@ -97,7 +111,7 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
         
         self.itens.append(itemPedidoMock3)
         self.produtos.append(produtoMock3)
-        
+       
     }
     
     private func fetchCompany() async throws {
@@ -110,7 +124,5 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
         self.usuario = usuarioMock
     }
     
-    
-    
-    
 }
+

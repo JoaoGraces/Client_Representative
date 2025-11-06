@@ -23,6 +23,9 @@ protocol MyOrdersViewModeling: ObservableObject {
     
     @MainActor
     func goToDetails(order: Pedido)
+    
+    @MainActor
+    func goToValidate(order: Pedido)
 }
 
 enum ViewState {
@@ -50,6 +53,11 @@ class MyOrdersViewModel: MyOrdersViewModeling {
     @MainActor
     func goToDetails(order: Pedido) {
         coordinator.go(to: .details(order: order))
+    }
+    
+    @MainActor
+    func goToValidate(order: Pedido) {
+        coordinator.go(to: .validate(order: order))
     }
     
     func fetchPipeline() async {
