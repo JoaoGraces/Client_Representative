@@ -9,11 +9,11 @@ import SwiftUI
 
 struct RepresentativeOrdersView<ViewModel: MyOrdersViewModeling>: View {
     @State private var viewModel: ViewModel
-     
+    
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
-     
+    
     var body: some View {
         switch viewModel.viewState {
         case .new, .loading:
@@ -34,7 +34,7 @@ struct RepresentativeOrdersView<ViewModel: MyOrdersViewModeling>: View {
                                     viewModel.goToValidate(order: order)
                                     
                                 })
-                                    .padding(DS.Spacing.insetX)
+                                .padding(DS.Spacing.insetX)
                             }
                         }
                     }

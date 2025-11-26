@@ -16,7 +16,7 @@ final class RootCoordinator: ObservableObject {
         case pending
     }
 
-    @Published var currentFlow: RootFlow = .auth
+    @Published var currentFlow: RootFlow = .representativeApp
     
     func completeAuthentication(role: UserRole) {
         withAnimation {
