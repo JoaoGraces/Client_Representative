@@ -39,4 +39,5 @@ final class OrderSentViewModel: ObservableObject {
 
     func handleBackToCatalog() { onBackToCatalog() }
     func handleSeeMyOrders() { onSeeMyOrders() }
+    
 }

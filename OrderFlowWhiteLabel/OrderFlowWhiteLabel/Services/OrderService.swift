@@ -13,9 +13,9 @@ final class OrderService {
     private let db = Firestore.firestore()
     private init() {}
 
-    func createOrder(forUserEmail email: String, pedido: Pedido) async throws {
+    func createOrder(forUserEmail email: String, order: OrderConfirmation) async throws {
         let pedidosRef = db.collection("users").document(email).collection("pedidos")
-        try pedidosRef.document(pedido.id.uuidString).setData(from: pedido)
+        try pedidosRef.document(order.pedido.id.uuidString).setData(from: order)
     }
 
     func fetchClientOrders(forUserEmail email: String) async throws -> [Pedido] {
@@ -29,30 +29,30 @@ final class OrderService {
         return snapshot.documents.compactMap { try? $0.data(as: Pedido.self) }
     }
 
-    func fetchAllOrders() async throws -> [Pedido] {
+    func fetchAllOrders() async throws -> [OrderConfirmation] {
         let usersSnapshot = try await db.collection("users").getDocuments()
-        var allPedidos: [Pedido] = []
+        var allPedidos: [OrderConfirmation] = []
 
         for userDoc in usersSnapshot.documents {
             let pedidosSnapshot = try await userDoc.reference.collection("pedidos").getDocuments()
-            let pedidos = pedidosSnapshot.documents.compactMap { try? $0.data(as: Pedido.self) }
+            let pedidos = pedidosSnapshot.documents.compactMap { try? $0.data(as: OrderConfirmation.self) }
             allPedidos.append(contentsOf: pedidos)
         }
 
         return allPedidos
     }
 
-    func updateOrder(forUserEmail email: String, pedido: Pedido) async throws {
+    func updateOrder(forUserEmail email: String, order: OrderConfirmation) async throws {
         let docRef = db.collection("users").document(email)
             .collection("pedidos")
-            .document(pedido.id.uuidString)
-        try  docRef.setData(from: pedido, merge: true)
+            .document(order.pedido.id.uuidString)
+        try  docRef.setData(from: order, merge: true)
     }
 
-    func deleteOrder(forUserEmail email: String, pedidoId: UUID) async throws {
+    func deleteOrder(forUserEmail email: String, orderId: UUID) async throws {
         let docRef = db.collection("users").document(email)
             .collection("pedidos")
-            .document(pedidoId.uuidString)
+            .document(orderId.uuidString)
         try await docRef.delete()
     }
     
@@ -69,11 +69,13 @@ final class OrderService {
                 observacoesCliente: "Entrega rápida, por favor",
                 dataCriacao: Date()
             )
+        
+        let order = OrderConfirmation(pedido: pedido, itens: [], taxaEntrega: 1)
 
             do {
                 try await OrderService.shared.createOrder(
                     forUserEmail: "brunoamteodoro@gmail.com",
-                    pedido: pedido
+                    order: order
                 )
                 print("✅ Pedido created successfully!")
             } catch {

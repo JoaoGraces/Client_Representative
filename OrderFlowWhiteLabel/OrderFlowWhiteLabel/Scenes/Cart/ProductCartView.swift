@@ -65,7 +65,9 @@ struct ProductCartItemView: View {
                     Spacer()
                         .frame(width: Layout.controlsWidth)
                     Button {
-                        onDelete()
+                        withAnimation(.easeInOut(duration: 0.12)) {
+                            onDelete()
+                        }
                     } label: {
                         Image(systemName: "trash")
                             .foregroundStyle(.white)
@@ -103,7 +105,6 @@ private struct QuantityControl: View {
     var body: some View {
         HStack(spacing: 8) {
             Button {
-                guard quantity > min else { return }
                 withAnimation(.easeInOut(duration: 0.12)) {
                     onDecrease()
                 }

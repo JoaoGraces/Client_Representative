@@ -31,7 +31,7 @@ struct Produto: Codable, Identifiable, Hashable {
     }
 }
 
-struct OrderConfirmation: Hashable {
+struct OrderConfirmation: Hashable, Codable {
     let pedido: Pedido
     let itens: [Produto]
     let taxaEntrega: Double

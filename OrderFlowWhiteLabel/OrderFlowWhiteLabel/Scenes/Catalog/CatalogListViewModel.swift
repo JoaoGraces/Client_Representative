@@ -21,6 +21,7 @@ final class ProductListViewModel: ObservableObject {
     private let pageSize = 10
     private var allProducts: [Produto] = []
     private var cancellables = Set<AnyCancellable>()
+    private let orderService: OrderService = OrderService.shared
     
     init() {
         loadProducts()
@@ -155,5 +156,15 @@ extension ProductListViewModel {
     
     func clearCart() {
         cartItems.removeAll()
+    }
+    
+    func createOrderConfirmation(with order: OrderConfirmation) {
+        Task {
+            do {
+              try await orderService.createOrder(forUserEmail: "", order: order)
+            } catch {
+                print("Erro ao criar pedido: \(error)")
+            }
+        }
     }
 }
