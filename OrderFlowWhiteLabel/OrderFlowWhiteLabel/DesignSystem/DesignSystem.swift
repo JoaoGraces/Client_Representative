@@ -326,3 +326,68 @@ extension DateFormatter {
         return df
     }()
 }
+
+extension DS {
+    struct StatusBadge: View {
+        let text: String
+        var body: some View {
+            Text(text)
+                .font(DS.Typography.caption())
+                .foregroundStyle(DS.Colors.neutral900)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule().fill(DS.Colors.neutral300)
+                )
+        }
+    }
+
+    struct KeyValueRow: View {
+        let title: String
+        let value: String
+        var valueFont: Font = DS.Typography.bodySemibold()
+        var body: some View {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(DS.Typography.caption())
+                    .foregroundStyle(DS.Colors.neutral700)
+                Text(value)
+                    .font(valueFont)
+                    .foregroundStyle(DS.Colors.neutral900)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, DS.Spacing.insetX)
+            .padding(.vertical, 6)
+        }
+    }
+
+    struct TextArea: View {
+        let placeholder: String
+        @Binding var text: String
+        var minHeight: CGFloat = 140
+
+        var body: some View {
+            ZStack(alignment: .topLeading) {
+                if text.isEmpty {
+                    Text(placeholder)
+                        .font(DS.Typography.body())
+                        .foregroundStyle(DS.Colors.neutral700)
+                        .padding(EdgeInsets(top: 12, leading: 12, bottom: 0, trailing: 12))
+                }
+                TextEditor(text: $text)
+                    .font(DS.Typography.body())
+                    .padding(8)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
+            }
+            .frame(minHeight: minHeight, alignment: .topLeading)
+            .background(
+                RoundedRectangle(cornerRadius: DS.Radius.sm)
+                    .stroke(DS.Colors.neutral300, lineWidth: DS.Border.hairline)
+                    .background(DS.Colors.white)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm))
+            .padding(.horizontal, DS.Spacing.pageLeading)
+        }
+    }
+}
