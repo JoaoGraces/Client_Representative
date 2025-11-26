@@ -61,27 +61,17 @@ final class FirestoreManager {
         
         throw NSError(domain: "FirestoreError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Usuário não encontrado em nenhuma coleção"])
     }
-    func getClientsForRepresentative(repId: String) async throws -> [User] {
-        /* Lógica futura:
-         let snapshot = try await db.collection("user")
-         .whereField("representativeId", isEqualTo: repId)
-         .getDocuments()
-         
-         return snapshot.documents.compactMap { try? $0.data(as: User.self) }
-         */
-        return [] // Retorno vazio temporário para não quebrar a build se não tiver User
+    
+    func getClientsForRepresentative(repEmail: String) async throws -> [User] {
+        
+        let snapshot = try await db.collection("users")
+            .whereField("representative_id", isEqualTo: repEmail)
+            .getDocuments()
+        
+        let clients = snapshot.documents.compactMap { document -> User? in
+            try? document.data(as: User.self)
+        }
+        
+        return clients
     }
 }
-
-/***    func getUserRole(email: String) async throws -> UserRole {
- let doc = try await db.collection("users").document(email).getDocument()
- guard let data = doc.data(),
- let roleString = data["role"] as? String,
- let role = UserRole(rawValue: roleString) else {
- throw NSError(domain: "FirestoreError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Role inválida ou documento inexistente"])
- }
- return role
- }
- }
- ***/
-
