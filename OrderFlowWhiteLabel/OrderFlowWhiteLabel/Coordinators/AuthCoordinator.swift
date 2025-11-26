@@ -16,7 +16,7 @@ enum AuthRoute: Hashable {
 final class AuthCoordinator: ObservableObject {
     @Published var navigationStack = NavigationPath()
     weak var rootCoordinator: RootCoordinator?
-    @Published var root: AuthRoute = .register
+    @Published var root: AuthRoute = .login
     
     init(rootCoordinator: RootCoordinator?) {
         self.rootCoordinator = rootCoordinator

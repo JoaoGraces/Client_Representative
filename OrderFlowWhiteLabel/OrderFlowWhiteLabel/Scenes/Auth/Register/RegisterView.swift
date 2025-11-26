@@ -14,35 +14,39 @@ struct RegisterView<ViewModel: RegisterViewModeling>: View {
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
-
+    
     var body: some View {
         VStack(spacing: 0) {
             TitleTextCentered(text: "Crie Sua Conta")
                 .padding(.top, 24)
-
+            
             Text("Preencha seus dados para começar a gerenciar seus pedidos.")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(DS.Colors.neutral900.opacity(0.7))
                 .padding(.horizontal, 32)
                 .padding(.top, 8)
-
+            
             VStack(spacing: 16) {
                 IconTextField(text: $viewModel.fullName, placeholder: "Nome Completo", systemImage: "person.crop.circle")
                     .textContentType(.name)
                     .submitLabel(.next)
-
+                
                 IconTextField(text: $viewModel.email, placeholder: "E-mail", systemImage: "envelope", keyboard: .emailAddress, autocapitalization: .never)
                     .textContentType(.emailAddress)
                     .submitLabel(.next)
-
+                
                 IconTextField(text: $viewModel.phone, placeholder: "Telefone", systemImage: "phone", keyboard: .numberPad)
                     .textContentType(.telephoneNumber)
                     .submitLabel(.next)
-
+                
+                IconTextField(text: $viewModel.address, placeholder: "Endereço", systemImage: "house")
+                                    .textContentType(.fullStreetAddress)
+                                    .submitLabel(.next)
+                
                 IconSecureField(text: $viewModel.password, placeholder: "Senha", systemImage: "lock")
                     .textContentType(.newPassword)
                     .submitLabel(.next)
-
+                
                 IconSecureField(text: $viewModel.confirmPassword, placeholder: "Confirmar Senha", systemImage: "lock")
                     .textContentType(.newPassword)
                     .submitLabel(.done)
@@ -54,17 +58,24 @@ struct RegisterView<ViewModel: RegisterViewModeling>: View {
                 Image(systemName: "briefcase")
                     .foregroundStyle(DS.Colors.neutral900.opacity(0.6))
                     .frame(width: 20, height: 20)
-                
                 Menu {
-                    ForEach(viewModel.representatives, id: \.self) { rep in
-                        Button(rep) {
-                            viewModel.selectedRepresentative = rep
+                    // LIGAÇÃO: Bind na variável de EMAIL
+                    Picker("Selection", selection: $viewModel.selectedRepresentativeEmail) {
+                        
+                        Text("Selecione o Representante")
+                            .tag(nil as String?)
+                        
+                        ForEach(viewModel.representatives) { rep in
+                            Text(rep.name)
+                            // TAG: Usa o EMAIL do representante como valor
+                                .tag(rep.email as String?)
                         }
                     }
                 } label: {
+                    // SEU DESIGN SYSTEM MANTIDO AQUI
                     HStack {
-                        Text(viewModel.selectedRepresentative == nil ? "Selecione o Representante" : "Representante: \(viewModel.selectedRepresentative!)")
-                            .foregroundStyle(viewModel.selectedRepresentative == nil ? DS.Colors.neutral900.opacity(0.3) : DS.Colors.neutral900)
+                        Text(selectedRepresentativeName)
+                            .foregroundStyle(selectedRepresentativeColor)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         
                         Image(systemName: "chevron.down")
@@ -85,7 +96,7 @@ struct RegisterView<ViewModel: RegisterViewModeling>: View {
             )
             .background(DS.Shadow.xs())
             .padding()
-
+            
             if viewModel.isLoading {
                 ProgressView()
                     .padding()
@@ -95,10 +106,10 @@ struct RegisterView<ViewModel: RegisterViewModeling>: View {
                         await viewModel.createAccount()
                     }
                 }
-                    .disabled(!viewModel.isFormValid)
-                    .padding(.top, 24)
+                .disabled(!viewModel.isFormValid)
+                .padding(.top, 24)
             }
-
+            
             Button(action: viewModel.goToLogin) {
                 Text("Já tem uma conta? Voltar ao Login")
                     .font(.callout)
@@ -109,6 +120,23 @@ struct RegisterView<ViewModel: RegisterViewModeling>: View {
         }
         .background(DS.Colors.white)
         .ignoresSafeArea(edges: [])
+    }
+    
+    private var selectedRepresentativeName: String {
+        // Busca comparando EMAILS
+        if let selectedEmail = viewModel.selectedRepresentativeEmail,
+           let rep = viewModel.representatives.first(where: { $0.email == selectedEmail }) {
+            return "Representante: \(rep.name)"
+        }
+        if viewModel.representatives.isEmpty {
+            return "Carregando representantes..."
+        }
+        return "Selecione o Representante"
+    }
+    
+    private var selectedRepresentativeColor: Color {
+        // Verifica se tem email selecionado
+        return viewModel.selectedRepresentativeEmail != nil ? DS.Colors.neutral900 : DS.Colors.neutral900.opacity(0.3)
     }
 }
 
@@ -130,13 +158,13 @@ struct IconTextField: View {
     let systemImage: String
     var keyboard: UIKeyboardType = .default
     var autocapitalization: TextInputAutocapitalization = .words
-
+    
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: systemImage)
                 .foregroundStyle(DS.Colors.neutral900.opacity(0.6))
                 .frame(width: 20, height: 20)
-
+            
             TextField(placeholder, text: $text)
                 .keyboardType(keyboard)
                 .textInputAutocapitalization(autocapitalization)
@@ -164,13 +192,13 @@ struct IconSecureField: View {
     let placeholder: String
     let systemImage: String
     @State private var isSecure: Bool = true
-
+    
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: systemImage)
                 .foregroundStyle(DS.Colors.neutral900.opacity(0.6))
                 .frame(width: 20, height: 20)
-
+            
             Group {
                 if isSecure {
                     SecureField(placeholder, text: $text)
@@ -182,7 +210,7 @@ struct IconSecureField: View {
             .disableAutocorrection(true)
             .foregroundStyle(DS.Colors.neutral900)
             .accessibilityLabel(placeholder)
-
+            
             Button {
                 isSecure.toggle()
             } label: {

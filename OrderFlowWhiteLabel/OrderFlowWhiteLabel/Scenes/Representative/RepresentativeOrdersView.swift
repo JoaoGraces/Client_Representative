@@ -9,11 +9,11 @@ import SwiftUI
 
 struct RepresentativeOrdersView<ViewModel: RepresentativeMyOrdersViewModeling>: View {
     @State private var viewModel: ViewModel
-     
+    
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
-     
+    
     var body: some View {
         switch viewModel.viewState {
         case .new, .loading:
