@@ -13,9 +13,9 @@ final class AuthService {
 
     private init() {}
 
-    func register(email: String, password: String) async throws {
+    func register(email: String, password: String, representative: String) async throws {
         let result = try await Auth.auth().createUser(withEmail: email, password: password)
-        try await FirestoreManager.shared.createUserDocument(email: email)
+        try await FirestoreManager.shared.createUserDocument(email: email, representative: representative)
     }
 
     func signIn(email: String, password: String) async throws {

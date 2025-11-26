@@ -21,11 +21,12 @@ final class FirestoreManager {
     
     private init() {}
     
-    func createUserDocument(email: String) async throws {
+    func createUserDocument(email: String, representative: String) async throws {
         let docRef = db.collection("users").document(email)
         try await docRef.setData([
             "email": email,
             "role": "pending",
+            "representative": representative,
             "createdAt": FieldValue.serverTimestamp()
         ])
     }

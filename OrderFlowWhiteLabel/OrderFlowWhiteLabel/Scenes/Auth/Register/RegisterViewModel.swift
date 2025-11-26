@@ -14,6 +14,8 @@ protocol RegisterViewModeling: ObservableObject {
     var phone: String { get set }
     var password: String { get set }
     var confirmPassword: String { get set }
+    var selectedRepresentative: String? { get set }
+    var representatives: [String] { get }
     
     var isFormValid: Bool { get }
     var isLoading: Bool { get }
@@ -36,6 +38,10 @@ class RegisterViewModel: RegisterViewModeling {
     @Published var confirmPassword: String = "" {
         didSet { validateForm() }
     }
+    @Published var selectedRepresentative: String? = nil {
+        didSet { validateForm() }
+    }
+    let representatives: [String] = ["gabriel.eduardo@gmail.com", "joao.victor@gmail.com", "bruno.teodoro@gmail.com"]
     
     @Published private(set) var isFormValid: Bool = false
     @Published private(set) var isLoading: Bool = false
@@ -52,7 +58,9 @@ class RegisterViewModel: RegisterViewModeling {
         }
         
         do {
-            try await AuthService.shared.register(email: email, password: password)
+            try await AuthService.shared.register(email: email, password: password, representative: selectedRepresentative ?? String())
+            
+            await OrderFlowCache.shared.set(email, forKey: .email)
             
             await coordinator.completeAuthentication(role: .pending)
         } catch {
@@ -74,7 +82,8 @@ class RegisterViewModel: RegisterViewModeling {
         let isNameValid = !fullName.trimmingCharacters(in: .whitespaces).isEmpty
         let isEmailValid = email.contains("@")
         let isPasswordValid = password.count >= 6 && password == confirmPassword
+        let isRepresentativeValid = selectedRepresentative != nil
         
-        self.isFormValid = isNameValid && isEmailValid && isPasswordValid
+        self.isFormValid = isNameValid && isEmailValid && isPasswordValid && isRepresentativeValid
     }
 }
