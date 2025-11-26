@@ -114,6 +114,7 @@ struct OrderSentView: View {
         }
         .navigationTitle("Pedido Enviado")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
     }
 }
 
@@ -135,9 +136,9 @@ struct OrderSentView: View {
     )
 
     let produtosExemplo = [
-        Produto(id: UUID(), distribuidoraId: UUID(), nome: "Café Expresso Duplo", quantidade: 2, precoUnidade: 8.50, estoque: 100),
-        Produto(id: UUID(), distribuidoraId: UUID(), nome: "Pão de Queijo Recheado", quantidade: 3, precoUnidade: 6.00, estoque: 50),
-        Produto(id: UUID(), distribuidoraId: UUID(), nome: "Suco de Laranja Natural 500ml", quantidade: 1, precoUnidade: 12.00, estoque: 30)
+        Produto(id: UUID(), distribuidoraId: UUID(), nome: "Café Expresso Duplo", quantidade: 2, precoUnidade: 8.50, estoque: 100, imageName: "", tagText: ""),
+        Produto(id: UUID(), distribuidoraId: UUID(), nome: "Pão de Queijo Recheado", quantidade: 3, precoUnidade: 6.00, estoque: 50, imageName: "", tagText: ""),
+        Produto(id: UUID(), distribuidoraId: UUID(), nome: "Suco de Laranja Natural 500ml", quantidade: 1, precoUnidade: 12.00, estoque: 30, imageName: "", tagText: "")
     ]
 
     let confirmation = OrderConfirmation(

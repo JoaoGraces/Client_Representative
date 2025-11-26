@@ -1,0 +1,116 @@
+//
+//  OrderDetailsViewModel.swift
+//  OrderFlowWhiteLabel
+//
+//  Created by Scarllet Gomes on 06/11/25.
+//
+
+import Foundation
+import SwiftUI
+
+protocol OrderDetailsViewModeling: ObservableObject {
+    var order: Pedido { get set }
+    var itens: [ItemPedido] { get }
+    var produtos: [Produto] { get }
+    
+    var empresa: Empresa? { get set }
+    var usuario: Usuario? { get set }
+    var viewState: ViewState { get }
+    
+    func calculateTotal() -> Double
+    func fetchPipeline() async
+    func requestUpdate()
+    func cancelOrder()
+}
+
+@Observable
+class OrderDetailsViewModel: OrderDetailsViewModeling {
+    var itens: [ItemPedido] = []
+    var produtos: [Produto] = []
+    var order: Pedido
+    var empresa: Empresa?
+    var usuario: Usuario?
+    
+    var viewState: ViewState = .new
+    
+    private let coordinator: OrdersCoordinator
+    
+    init(coordinator: OrdersCoordinator, pedido: Pedido) {
+        self.coordinator = coordinator
+        self.order = pedido
+    }
+    
+    func fetchPipeline() async {
+        do {
+            try await fetchOrder()
+        } catch {
+            self.viewState = .error
+        }
+        
+        do {
+            try await fetchCompany()
+        } catch {
+            self.viewState = .error
+        }
+        
+        do {
+            try await fetchUsuario()
+        } catch {
+            self.viewState = .error
+        }
+        
+        self.viewState = .loaded
+    }
+    
+    func calculateTotal() -> Double {
+        return itens.reduce(0) { $0 + $1.valorTotal }
+    }
+    
+    func requestUpdate() {
+        //TODO: Fazer chamada do FireBase
+    }
+    
+    func cancelOrder() {
+        //TODO: Fazer chamada do FireBase
+    }
+    
+    private func fetchOrder() async throws {
+        let pedidoMock = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .alteracao, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la", dataCriacao: Date())
+        
+        self.order = pedidoMock
+        
+        let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
+        let produtoMock = Produto(id: UUID(), distribuidoraId: UUID(), nome: "Café", quantidade: 2, precoUnidade: 10.50, estoque: 10)
+        
+        self.itens.append(itemPedidoMock)
+        self.produtos.append(produtoMock)
+        
+        
+        let itemPedidoMock2 = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 1, precoUnitarioMomento: 8.50)
+        let produtoMock2 = Produto(id: UUID(), distribuidoraId: UUID(), nome: "Leite", quantidade: 1, precoUnidade: 8.50, estoque: 8)
+        
+        self.itens.append(itemPedidoMock2)
+        self.produtos.append(produtoMock2)
+        
+        let itemPedidoMock3 = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 8, precoUnitarioMomento: 2.70)
+        let produtoMock3 = Produto(id: UUID(), distribuidoraId: UUID(), nome: "Repolho", quantidade: 8, precoUnidade: 2.70, estoque: 12)
+        
+        self.itens.append(itemPedidoMock3)
+        self.produtos.append(produtoMock3)
+        
+    }
+    
+    private func fetchCompany() async throws {
+        let empresaMock = Empresa(id: UUID(), razaoSocial: "Empresa Teste", nomeFantasia: "Nome Fantasia", cnpj: "123.1323/321", tipo: .clienteFinal, distribuidoraPaiId: UUID())
+        self.empresa = empresaMock
+    }
+    
+    private func fetchUsuario() async throws {
+        let usuarioMock = Usuario(id: UUID(), nomeCompleto: "Nome completo", senha_hash: "Senha", email: "email.com", papel: .adminCliente, empresaId: UUID(), dataCriacao: Date())
+        self.usuario = usuarioMock
+    }
+    
+    
+    
+    
+}

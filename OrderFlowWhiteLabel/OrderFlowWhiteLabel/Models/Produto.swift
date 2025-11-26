@@ -18,6 +18,17 @@ struct Produto: Codable, Identifiable, Hashable {
     var descricao: String {
         "\(quantidade) x R$ \(precoUnidade.formattedMoney)/un."
     }
+
+    let imageName: String
+    let tagText: String
+    
+    var formattedPrice: String {
+        String(format: "R$ %.2f", precoUnidade)
+    }
+    
+    var isOutOfStock: Bool {
+        estoque <= 0
+    }
 }
 
 struct OrderConfirmation: Hashable {
@@ -40,6 +51,8 @@ struct OrderConfirmation: Hashable {
         case .enviado: return "Enviado"
         case .entregue: return "Entregue"
         case .finalizado: return "Finalizado"
+        case .cancelamento: return "Cancelado"
+        case .alteracao: return "Alteração"
         }
     }
 
