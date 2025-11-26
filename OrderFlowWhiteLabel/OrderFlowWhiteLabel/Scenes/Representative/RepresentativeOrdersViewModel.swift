@@ -7,9 +7,24 @@
 import Foundation
 import SwiftUI
 
-@Observable
-class RepresentativeOrdersViewModel: MyOrdersViewModeling {
+protocol RepresentativeMyOrdersViewModeling: ObservableObject {
+    var orders: [Pedido] { get set }
+    var empresa: Empresa? { get set }
+    var item: ItemPedido? { get set }
     
+    var viewState: ViewState { get }
+    
+    func fetchPipeline() async
+    
+    @MainActor
+    func goToDetails(order: Pedido)
+    
+    @MainActor
+    func goToValidate(order: Pedido)
+}
+
+@Observable
+class RepresentativeOrdersViewModel: RepresentativeMyOrdersViewModeling {
     var orders: [Pedido] = []
     var viewState: ViewState = .new
     var empresa: Empresa?

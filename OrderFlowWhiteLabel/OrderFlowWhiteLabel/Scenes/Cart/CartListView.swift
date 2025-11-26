@@ -72,7 +72,9 @@ private extension CartListView {
                     unitPrice: item.product.precoUnidade,
                     quantity: $item.quantity,
                     onIncrease: { viewModel.increaseQuantity(for: item.product) },
-                    onDecrease: { viewModel.decreaseQuantity(for: item.product) }
+                    onDecrease: { viewModel.decreaseQuantity(for: item.product) }, onDelete: {
+                        viewModel.removeFromCart(item)
+                    }
                 )
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)

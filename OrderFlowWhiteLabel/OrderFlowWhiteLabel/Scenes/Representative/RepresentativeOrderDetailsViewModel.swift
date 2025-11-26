@@ -17,9 +17,23 @@ protocol RepresentativeOrderDetailsNavigation: AnyObject {
     func requestCancel(order: Pedido)
 }
 
-@Observable
-class RepresentativeOrderDetailsViewModel: OrderDetailsViewModeling {
+protocol RepresentativeOrderDetailsViewModeling: ObservableObject {
+    var order: Pedido { get set }
+    var itens: [ItemPedido] { get }
+    var produtos: [Produto] { get }
     
+    var empresa: Empresa? { get set }
+    var usuario: Usuario? { get set }
+    var viewState: ViewState { get }
+    
+    func calculateTotal() -> Double
+    func fetchPipeline() async
+    func requestUpdate()
+    func cancelOrder()
+}
+
+@Observable
+class RepresentativeOrderDetailsViewModel: RepresentativeOrderDetailsViewModeling {
     var itens: [ItemPedido] = []
     var produtos: [Produto] = []
     var order: Pedido
