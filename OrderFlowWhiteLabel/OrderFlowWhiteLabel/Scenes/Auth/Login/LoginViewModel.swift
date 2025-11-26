@@ -21,20 +21,19 @@ class LoginViewModel: LoginViewModeling {
     @Published var password: String = ""
     
     private let coordinator: AuthCoordinator
-        
+    
     init(coordinator: AuthCoordinator) {
         self.coordinator = coordinator
     }
     
     func login() async {
         await MainActor.run {
-//            isLoading = true
+            //            isLoading = true
         }
         
         do {
-            try await AuthService.shared.signIn(email: email, password: password)
-            
-            let role = try await FirestoreManager.shared.getUserRole(email: email)
+            try await AuthService.shared.signIn(email: email, password: password)            // 2. Buscamos a role usando o
+            let role = try await FirestoreManager.shared.getUserRole(email: self.email)
             
             await OrderFlowCache.shared.set(email, forKey: .email)
             
@@ -44,7 +43,7 @@ class LoginViewModel: LoginViewModeling {
         }
         
         await MainActor.run {
-//            isLoading = false
+            //            isLoading = false
         }
     }
     
