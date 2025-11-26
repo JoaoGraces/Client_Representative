@@ -14,6 +14,7 @@ final class RootCoordinator: ObservableObject {
         case clientApp
         case representativeApp
         case pending
+        case refusedClient
     }
 
     @Published var currentFlow: RootFlow = .auth
@@ -27,6 +28,8 @@ final class RootCoordinator: ObservableObject {
                 currentFlow = .clientApp
             case .representative:
                 currentFlow = .representativeApp
+            case .refused:
+                currentFlow = .refusedClient
             }
         }
     }
@@ -48,6 +51,9 @@ struct RootCoordinatorView: View {
             
         case .pending:
             PendingView()
+            
+        case .refusedClient:
+            RefusedClientView()
         }
     }
 }

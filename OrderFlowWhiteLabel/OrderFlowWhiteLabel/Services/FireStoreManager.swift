@@ -13,6 +13,7 @@ enum UserRole: String {
     case pending
     case client
     case representative
+    case refused
 }
 
 final class FirestoreManager {
