@@ -32,6 +32,13 @@ class RepresentativeClientsViewModel: ObservableObject {
         
         self.isLoading = false
     }
+    func logout() {
+          do {
+              try Auth.auth().signOut()
+          } catch {
+              print("Erro ao sair: \(error.localizedDescription)")
+          }
+      }
 }
 
 struct RepresentativeClientsView: View {
@@ -81,6 +88,16 @@ struct RepresentativeClientsView: View {
                 }
             }
             .navigationTitle("Meus Clientes")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        viewModel.logout()
+                    }) {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .foregroundStyle(Color.red)
+                    }
+                }
+            }
             .onAppear {
                 Task {
                     await viewModel.fetchClients()
