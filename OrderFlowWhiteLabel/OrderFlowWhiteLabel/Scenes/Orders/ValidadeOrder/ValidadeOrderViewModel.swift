@@ -94,20 +94,20 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
         self.order = pedidoMock
         
         let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
-        let produtoMock = Produto(id: UUID(), distribuidoraId: UUID(), nome: "Café", quantidade: 2, precoUnidade: 10.50, estoque: 10)
+        let produtoMock = Produto(id: UUID(), distribuidoraId: UUID(), nome: "Café", quantidade: 2, precoUnidade: 10.50, estoque: 10, imageName: "", tagText: "")
         
         self.itens.append(itemPedidoMock)
         self.produtos.append(produtoMock)
         
         
         let itemPedidoMock2 = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 1, precoUnitarioMomento: 8.50)
-        let produtoMock2 = Produto(id: UUID(), distribuidoraId: UUID(), nome: "Leite", quantidade: 1, precoUnidade: 8.50, estoque: 8)
+        let produtoMock2 = Produto(id: UUID(), distribuidoraId: UUID(), nome: "Leite", quantidade: 1, precoUnidade: 8.50, estoque: 8, imageName: "", tagText: "")
         
         self.itens.append(itemPedidoMock2)
         self.produtos.append(produtoMock2)
         
         let itemPedidoMock3 = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 8, precoUnitarioMomento: 2.70)
-        let produtoMock3 = Produto(id: UUID(), distribuidoraId: UUID(), nome: "Repolho", quantidade: 8, precoUnidade: 2.70, estoque: 12)
+        let produtoMock3 = Produto(id: UUID(), distribuidoraId: UUID(), nome: "Repolho", quantidade: 8, precoUnidade: 2.70, estoque: 12, imageName: "", tagText: "")
         
         self.itens.append(itemPedidoMock3)
         self.produtos.append(produtoMock3)

@@ -13,65 +13,74 @@ struct ProductCartItemView: View {
         static let buttonSize: CGFloat = 32
         static let verticalSpacing: CGFloat = 12
     }
-
+    
     // MARK: - Properties
     let title: String
     let imageURL: String
     let unitPrice: Double
     var minQuantity = 1
     var maxQuantity = 99
-
+    
     @Binding var quantity: Int
     let onIncrease: () -> Void
     let onDecrease: () -> Void
-
+    let onDelete: () -> Void
+    
     private var totalPrice: Double { unitPrice * Double(quantity) }
-
+    
     // MARK: - Body
     var body: some View {
-        VStack(spacing: Layout.verticalSpacing) {
-            Text(title)
-                .font(DS.Typography.body2())
-                .foregroundColor(DS.Colors.neutral900)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-                .padding(.top, Layout.padding)
-            
-            HStack(alignment: .center, spacing: Layout.spacing) {
-                CachedAsyncImage(url: URL(string: imageURL), height: Layout.imageSize)
-                    .scaledToFit()
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .frame(width: Layout.imageSize, height: Layout.imageSize)
-                
-                VStack(alignment: .leading, spacing: 2) {
+        HStack(spacing: Layout.verticalSpacing) {
+            CachedAsyncImage(url: URL(string: imageURL), height: Layout.imageSize)
+                .scaledToFit()
+                .clipShape(Circle())
+                .frame(width: Layout.imageSize, height: Layout.imageSize)
+            VStack(alignment: .leading, spacing: 10) {
+                Text(title)
+                    .font(DS.Typography.body2())
+                    .foregroundColor(DS.Colors.neutral900)
+                    .multilineTextAlignment(.leading)
+                HStack() {
                     Text("R$ \(totalPrice, specifier: "%.2f")")
-                        .font(DS.Typography.title3())
+                        .font(DS.Typography.body())
                         .foregroundColor(DS.Colors.neutral900)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
-                    
+                    Spacer()
                     Text("Unidade: \(unitPrice, specifier: "%.2f")")
-                        .font(DS.Typography.caption())
-                        .foregroundColor(DS.Colors.neutral700)
+                        .font(DS.Typography.body())
+                        .foregroundColor(DS.Colors.neutral900)
+                        .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
-
-                Spacer()
-
-                QuantityControl(
-                    quantity: $quantity,
-                    min: minQuantity,
-                    max: maxQuantity,
-                    buttonSize: Layout.buttonSize,
-                    onIncrease: onIncrease,
-                    onDecrease: onDecrease
-                )
-                .frame(width: Layout.controlsWidth)
+                HStack {
+                    QuantityControl(
+                        quantity: $quantity,
+                        min: minQuantity,
+                        max: maxQuantity,
+                        buttonSize: Layout.buttonSize,
+                        onIncrease: onIncrease,
+                        onDecrease: onDecrease
+                    )
+                    Spacer()
+                        .frame(width: Layout.controlsWidth)
+                    Button {
+                        onDelete()
+                    } label: {
+                        Image(systemName: "trash")
+                            .foregroundStyle(.white)
+                            .padding(6)
+                            .background(DS.Colors.redBase)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                        
+                        
+                    }
+                }
+                .padding(.top, 6)
+                
             }
-            .padding(.horizontal, Layout.padding)
-            .padding(.bottom, Layout.padding)
         }
-        .frame(width: Layout.width)
+        .padding(Layout.padding)
         .background(DS.Colors.white)
         .overlay(
             RoundedRectangle(cornerRadius: Layout.cornerRadius)
@@ -90,7 +99,7 @@ private struct QuantityControl: View {
     let buttonSize: CGFloat
     let onIncrease: () -> Void
     let onDecrease: () -> Void
-
+    
     var body: some View {
         HStack(spacing: 8) {
             Button {
@@ -113,7 +122,7 @@ private struct QuantityControl: View {
                 .font(DS.Typography.body2())
                 .foregroundColor(DS.Colors.neutral900)
                 .frame(minWidth: 30)
-
+            
             Button {
                 guard quantity < max else { return }
                 withAnimation(.easeInOut(duration: 0.12)) {
@@ -141,7 +150,7 @@ private struct QuantityControl: View {
         unitPrice: 149.99,
         quantity: $quantity,
         onIncrease: { print("Aumentou!") },
-        onDecrease: { print("Diminuiu!") }
+        onDecrease: { print("Diminuiu!") }, onDelete: { print("Diminuiu!")}
     )
     .padding()
     .background(DS.Colors.neutral300.opacity(0.05))
