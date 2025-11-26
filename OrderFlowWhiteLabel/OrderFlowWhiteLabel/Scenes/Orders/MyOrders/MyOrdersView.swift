@@ -26,11 +26,11 @@ struct MyOrdersView<ViewModel: MyOrdersViewModeling>: View {
         case .loaded:
             ScrollView{
                 VStack (spacing: DS.Spacing.insetX){
-                    ForEach(viewModel.orders, id: \.id) { order in
+                    ForEach(viewModel.orders, id: \.self) { order in
                         DSCard2 {
-                            if let empresa = viewModel.empresa,  let item = viewModel.item {
-                                OrderCell(order: order, empresa: empresa, item: item, action: {
-                                    viewModel.goToValidate(order: order)
+                            if let empresa = viewModel.empresa{
+                                OrderCell(order: order, empresa: empresa, action: {
+                                    viewModel.goToDetails(order: order)
                                 })
                                     .padding(DS.Spacing.insetX)
                             }
@@ -40,6 +40,11 @@ struct MyOrdersView<ViewModel: MyOrdersViewModeling>: View {
             }
             .navigationTitle("Meus Pedidos")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                Task{
+                    await viewModel.fetchPipeline()
+                }
+            }
         case .error:
             EmptyView()
         }

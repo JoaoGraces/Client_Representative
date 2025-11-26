@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct RepresentativeOrdersView<ViewModel: MyOrdersViewModeling>: View {
+struct RepresentativeOrdersView<ViewModel: RepresentativeMyOrdersViewModeling>: View {
     @State private var viewModel: ViewModel
     
     init(viewModel: ViewModel) {
@@ -28,14 +28,14 @@ struct RepresentativeOrdersView<ViewModel: MyOrdersViewModeling>: View {
                 VStack (spacing: DS.Spacing.insetX){
                     ForEach(viewModel.orders, id: \.id) { order in
                         DSCard2 {
-                            if let empresa = viewModel.empresa,  let item = viewModel.item {
+                        /*    if let empresa = viewModel.empresa,  let item = viewModel.item {
                                 OrderCell(order: order, empresa: empresa, item: item, action: {
                                     
                                     viewModel.goToValidate(order: order)
                                     
                                 })
-                                .padding(DS.Spacing.insetX)
-                            }
+                                    .padding(DS.Spacing.insetX)
+                            } */
                         }
                     }
                 }

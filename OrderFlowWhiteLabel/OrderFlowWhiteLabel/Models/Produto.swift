@@ -11,7 +11,7 @@ struct Produto: Codable, Identifiable, Hashable {
     let id: UUID
     let distribuidoraId: UUID
     let nome: String
-    let quantidade: Int
+    var quantidade: Int
     let precoUnidade: Double
     var preco: Double { Double(quantidade) * precoUnidade }
     let estoque: Int
@@ -31,7 +31,7 @@ struct Produto: Codable, Identifiable, Hashable {
     }
 }
 
-struct OrderConfirmation: Hashable {
+struct OrderConfirmation: Hashable, Codable {
     let pedido: Pedido
     let itens: [Produto]
     let taxaEntrega: Double

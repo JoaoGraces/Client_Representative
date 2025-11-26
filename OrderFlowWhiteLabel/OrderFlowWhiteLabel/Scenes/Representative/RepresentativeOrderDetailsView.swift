@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct RepresentativeOrderDetailsView<ViewModel: OrderDetailsViewModeling>: View {
+struct RepresentativeOrderDetailsView<ViewModel: RepresentativeOrderDetailsViewModeling>: View {
     @State private var viewModel: ViewModel
      
     init(viewModel: ViewModel) {

@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 protocol OrderDetailsViewModeling: ObservableObject {
-    var order: Pedido { get set }
+    var order: OrderConfirmation { get set }
     var itens: [ItemPedido] { get }
     var produtos: [Produto] { get }
     
@@ -27,7 +27,7 @@ protocol OrderDetailsViewModeling: ObservableObject {
 class OrderDetailsViewModel: OrderDetailsViewModeling {
     var itens: [ItemPedido] = []
     var produtos: [Produto] = []
-    var order: Pedido
+    var order: OrderConfirmation
     var empresa: Empresa?
     var usuario: Usuario?
     
@@ -35,7 +35,7 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
     
     private let coordinator: OrdersCoordinator
     
-    init(coordinator: OrdersCoordinator, pedido: Pedido) {
+    init(coordinator: OrdersCoordinator, pedido: OrderConfirmation) {
         self.coordinator = coordinator
         self.order = pedido
     }
@@ -75,51 +75,63 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
     }
     
     private func fetchOrder() async throws {
-            let pedidoMock = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .alteracao, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la", dataCriacao: Date())
-             
-            self.order = pedidoMock
-             
-            let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
-            
-            // CORREÇÃO 1:
-            let produtoMock = Produto(
-                id: UUID(), distribuidoraId: UUID(), nome: "Café",
-                quantidade: 2, precoUnidade: 10.50, estoque: 10,
-                imageName: "photo", // <-- Adicionado
-                tagText: "-"        // <-- Adicionado
-            )
-             
-            self.itens.append(itemPedidoMock)
-            self.produtos.append(produtoMock)
-             
-             
-            let itemPedidoMock2 = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 1, precoUnitarioMomento: 8.50)
-            
-            // CORREÇÃO 2:
-            let produtoMock2 = Produto(
-                id: UUID(), distribuidoraId: UUID(), nome: "Leite",
-                quantidade: 1, precoUnidade: 8.50, estoque: 8,
-                imageName: "photo", // <-- Adicionado
-                tagText: "-"        // <-- Adicionado
-            )
-             
-            self.itens.append(itemPedidoMock2)
-            self.produtos.append(produtoMock2)
-             
-            let itemPedidoMock3 = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 8, precoUnitarioMomento: 2.70)
-            
-            // CORREÇÃO 3:
-            let produtoMock3 = Produto(
-                id: UUID(), distribuidoraId: UUID(), nome: "Repolho",
-                quantidade: 8, precoUnidade: 2.70, estoque: 12,
-                imageName: "photo", // <-- Adicionado
-                tagText: "-"        // <-- Adicionado
-            )
-             
-            self.itens.append(itemPedidoMock3)
-            self.produtos.append(produtoMock3)
-             
+        let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
+        
+        self.produtos = order.itens
+        self.itens = order.itens.map { item in
+            ItemPedido(pedidoId: order.pedido.id, produtoId: item.id, quantidade: item.quantidade, precoUnitarioMomento: Decimal(item.precoUnidade))
         }
+    }
+    
+    private func fetchOrderMock() async throws {
+        let pedidoMock = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .alteracao, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la", dataCriacao: Date())
+        
+        
+        let orderMock = OrderConfirmation(pedido: pedidoMock, itens: [], taxaEntrega: 1)
+        
+        self.order = orderMock
+        
+        let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
+        
+        // CORREÇÃO 1:
+        let produtoMock = Produto(
+            id: UUID(), distribuidoraId: UUID(), nome: "Café",
+            quantidade: 2, precoUnidade: 10.50, estoque: 10,
+            imageName: "photo", // <-- Adicionado
+            tagText: "-"        // <-- Adicionado
+        )
+        
+        self.itens.append(itemPedidoMock)
+        self.produtos.append(produtoMock)
+        
+        
+        let itemPedidoMock2 = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 1, precoUnitarioMomento: 8.50)
+        
+        // CORREÇÃO 2:
+        let produtoMock2 = Produto(
+            id: UUID(), distribuidoraId: UUID(), nome: "Leite",
+            quantidade: 1, precoUnidade: 8.50, estoque: 8,
+            imageName: "photo", // <-- Adicionado
+            tagText: "-"        // <-- Adicionado
+        )
+        
+        self.itens.append(itemPedidoMock2)
+        self.produtos.append(produtoMock2)
+        
+        let itemPedidoMock3 = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 8, precoUnitarioMomento: 2.70)
+        
+        // CORREÇÃO 3:
+        let produtoMock3 = Produto(
+            id: UUID(), distribuidoraId: UUID(), nome: "Repolho",
+            quantidade: 8, precoUnidade: 2.70, estoque: 12,
+            imageName: "photo", // <-- Adicionado
+            tagText: "-"        // <-- Adicionado
+        )
+        
+        self.itens.append(itemPedidoMock3)
+        self.produtos.append(produtoMock3)
+        
+    }
     
     private func fetchCompany() async throws {
         let empresaMock = Empresa(id: UUID(), razaoSocial: "Empresa Teste", nomeFantasia: "Nome Fantasia", cnpj: "123.1323/321", tipo: .clienteFinal, distribuidoraPaiId: UUID())
