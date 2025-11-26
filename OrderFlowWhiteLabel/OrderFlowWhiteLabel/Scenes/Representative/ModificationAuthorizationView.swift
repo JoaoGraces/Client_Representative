@@ -58,7 +58,7 @@ struct ModificationAuthorizationView: View {
                     VStack(spacing: 8) {
                         HStack {
                             DSSectionHeader(title: "Detalhes do Pedido")
-
+                            
                             Text(modificationDetails.id)
                                 .font(DS.Typography.body())
                                 .bold()
