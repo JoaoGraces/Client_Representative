@@ -18,15 +18,15 @@ final class OrderService {
         try pedidosRef.document(order.pedido.id.uuidString).setData(from: order)
     }
 
-    func fetchClientOrders(forUserEmail email: String) async throws -> [Pedido] {
+    func fetchClientOrders(forUserEmail email: String) async throws -> [OrderConfirmation] {
         let snapshot = try await db
             .collection("users")
             .document(email)
             .collection("pedidos")
-            .order(by: "dataCriacao", descending: true)
+            .order(by: "pedido.dataCriacao", descending: true)
             .getDocuments()
 
-        return snapshot.documents.compactMap { try? $0.data(as: Pedido.self) }
+        return snapshot.documents.compactMap { try? $0.data(as: OrderConfirmation.self) }
     }
 
     func fetchAllOrders() async throws -> [OrderConfirmation] {

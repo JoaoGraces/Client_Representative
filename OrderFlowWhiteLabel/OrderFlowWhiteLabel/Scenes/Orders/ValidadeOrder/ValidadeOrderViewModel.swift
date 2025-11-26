@@ -13,7 +13,7 @@ import Foundation
 import SwiftUI
 
 protocol ValidadeOrderViewModeling: ObservableObject {
-    var order: Pedido { get set }
+    var order: OrderConfirmation { get set }
     var empresa: Empresa? { get set }
     var itens: [ItemPedido] { get }
     var produtos: [Produto] { get }
@@ -28,12 +28,12 @@ protocol ValidadeOrderViewModeling: ObservableObject {
     func rejectOrder()
     
     @MainActor
-    func goToDetails(order: Pedido)
+    func goToDetails(order: OrderConfirmation)
 }
 
 @Observable
 class ValidadeOrderViewModel: ValidadeOrderViewModeling {
-    var order: Pedido
+    var order: OrderConfirmation
     var viewState: ViewState = .new
     
     var itens: [ItemPedido] = []
@@ -43,13 +43,13 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
     
     private let coordinator: OrdersCoordinator
     
-    init(coordinator: OrdersCoordinator, pedido: Pedido) {
+    init(coordinator: OrdersCoordinator, pedido: OrderConfirmation) {
         self.coordinator = coordinator
         self.order = pedido
     }
     
     @MainActor
-    func goToDetails(order: Pedido) {
+    func goToDetails(order: OrderConfirmation) {
         coordinator.go(to: .details(order: order))
         self.order = order
     }
@@ -91,7 +91,9 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
     private func fetchOrders() async throws {
             let pedidoMock = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .alteracao, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la", dataCriacao: Date())
              
-            self.order = pedidoMock
+        let orderMock = OrderConfirmation(pedido: pedidoMock, itens: [], taxaEntrega: 1)
+        
+        self.order = orderMock
              
             let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
             

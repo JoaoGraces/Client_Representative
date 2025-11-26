@@ -13,7 +13,7 @@ import Foundation
 import SwiftUI
 
 protocol MyOrdersViewModeling: ObservableObject {
-    var orders: [Pedido] { get set }
+    var orders: [OrderConfirmation] { get set }
     var empresa: Empresa? { get set }
     var item: ItemPedido? { get set }
     
@@ -22,10 +22,10 @@ protocol MyOrdersViewModeling: ObservableObject {
     func fetchPipeline() async
     
     @MainActor
-    func goToDetails(order: Pedido)
+    func goToDetails(order: OrderConfirmation)
     
     @MainActor
-    func goToValidate(order: Pedido)
+    func goToValidate(order: OrderConfirmation)
 }
 
 enum ViewState {
@@ -37,7 +37,8 @@ enum ViewState {
 
 @Observable
 class MyOrdersViewModel: MyOrdersViewModeling {
-    var orders: [Pedido] = []
+    
+    var orders: [OrderConfirmation] = []
     var viewState: ViewState = .new
     
     var empresa: Empresa?
@@ -45,18 +46,19 @@ class MyOrdersViewModel: MyOrdersViewModeling {
     var usuario: Usuario?
     
     private let coordinator: OrdersCoordinator
+    private let orderService: OrderService = OrderService.shared
     
     init(coordinator: OrdersCoordinator) {
         self.coordinator = coordinator
     }
     
     @MainActor
-    func goToDetails(order: Pedido) {
+    func goToDetails(order: OrderConfirmation) {
         coordinator.go(to: .details(order: order))
     }
     
     @MainActor
-    func goToValidate(order: Pedido) {
+    func goToValidate(order: OrderConfirmation) {
         coordinator.go(to: .validate(order: order))
     }
     
@@ -82,16 +84,23 @@ class MyOrdersViewModel: MyOrdersViewModeling {
         self.viewState = .loaded
     }
     
+    func getItems(order: OrderConfirmation) {
+     //   self.item = order.itens.map { item in
+    //       ItemPedido(pedidoId: order.pedido.id, produtoId: item.id, quantidade: item.quantidade, precoUnitarioMomento: Decimal(item.precoUnidade))
+    //    }
+    }
+    
     private func fetchOrders() async throws {
-        let pedidoMock = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .alteracao, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la", dataCriacao: Date())
-        let pedidoMock2 = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .cancelamento, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la2", dataCriacao: Date())
-        let pedidoMock3 = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .enviado, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la3", dataCriacao: Date())
-        
-        self.orders = [pedidoMock, pedidoMock2, pedidoMock3, pedidoMock]
-        
-        let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
-       
-        self.item = itemPedidoMock
+        Task {
+            let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? ""
+            
+            do {
+               let orders = try await orderService.fetchClientOrders(forUserEmail: email)
+                self.orders = orders
+            } catch {
+                self.viewState = .error
+            }
+        }
     }
     
     private func fetchCompany() async throws {
@@ -106,3 +115,28 @@ class MyOrdersViewModel: MyOrdersViewModeling {
     
 }
 
+// Mocks
+extension MyOrdersViewModel {
+    private func fetchOrdersMock() async throws {
+        let pedidoMock = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .alteracao, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la", dataCriacao: Date())
+        let pedidoMock2 = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .cancelamento, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la2", dataCriacao: Date())
+        let pedidoMock3 = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .enviado, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la3", dataCriacao: Date())
+        
+        let orders1 = OrderConfirmation(pedido: pedidoMock, itens: [], taxaEntrega: 1)
+        let orders2 = OrderConfirmation(pedido: pedidoMock2, itens: [], taxaEntrega: 1)
+        let orders3 = OrderConfirmation(pedido: pedidoMock3, itens: [], taxaEntrega: 1)
+        
+        self.orders = [orders1, orders2, orders3, orders3, orders1]
+        
+        let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
+       
+        self.item = itemPedidoMock
+    }
+}
+
+
+extension Double {
+    var twoDecimals: String {
+        String(format: "%.2f", self)
+    }
+}

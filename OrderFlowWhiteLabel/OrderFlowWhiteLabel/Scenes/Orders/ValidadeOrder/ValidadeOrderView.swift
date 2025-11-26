@@ -28,7 +28,7 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                 VStack (spacing: DS.Spacing.insetX){
                     DSCard2 {
                         VStack(alignment: .leading) {
-                            DSSectionHeader(title: "Pedido \(viewModel.order.id)")
+                            DSSectionHeader(title: "Pedido \(viewModel.order.pedido.id)")
                             
                             HStack{
                                 Text("Data:")
@@ -36,7 +36,7 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                                 
                                 Spacer()
                                 
-                                Text(DateFormatter.ptLong.string(from: viewModel.order.dataCriacao))
+                                Text(DateFormatter.ptLong.string(from: viewModel.order.pedido.dataCriacao))
                                     .font(DS.Typography.body())
                             }
                             
@@ -66,7 +66,7 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                                 
                                 Spacer()
                                 
-                                StatusBadge(status: viewModel.order.status)
+                                StatusBadge(status: viewModel.order.pedido.status)
                             }
                             
                             DSFullInsetDivider()

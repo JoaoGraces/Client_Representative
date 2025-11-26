@@ -44,7 +44,7 @@ final class CartCoordinator: ObservableObject {
             if let viewModel = viewModel {
                   CheckoutView(
                       items: products,
-                      deliveryFee: 7.50,
+                      deliveryFee: Double.random(in: 0...30),
                       coordinator: self,
                       viewModel: viewModel
                   )

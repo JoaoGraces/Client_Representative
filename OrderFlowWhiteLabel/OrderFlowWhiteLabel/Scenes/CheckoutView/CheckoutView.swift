@@ -135,7 +135,8 @@ struct CheckoutView: View {
             itens: items.map { $0.product },
             taxaEntrega: deliveryFee
         )
-
+        
+        viewModel.createOrderConfirmation(with: confirmation)
         coordinator.go(to: .orderConfirmation(confirmation))
     }
 }

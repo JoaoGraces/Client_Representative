@@ -102,7 +102,7 @@ final class ProductListViewModel: ObservableObject {
                     id: UUID(),
                     distribuidoraId: UUID(),
                     nome: item.nome,
-                    quantidade: Int.random(in: 1...10),
+                    quantidade: 0,
                     precoUnidade: Double.random(in: 20...800),
                     estoque: Int.random(in: 0...50),
                     imageName: item.imagem,
@@ -118,8 +118,10 @@ extension ProductListViewModel {
     func addToCart(_ product: Produto, quantity: Int = 1) {
         if let index = cartItems.firstIndex(where: { $0.product.id == product.id }) {
             cartItems[index].quantity += quantity
+            cartItems[index].product.quantidade += quantity
         } else {
-            let newItem = CartItemModel(product: product, quantity: quantity)
+            var newItem = CartItemModel(product: product, quantity: quantity)
+            newItem.product.quantidade += 1
             cartItems.append(newItem)
         }
     }
@@ -140,6 +142,7 @@ extension ProductListViewModel {
     func increaseQuantity(for product: Produto) {
         if let index = cartItems.firstIndex(where: { $0.product.id == product.id }) {
             cartItems[index].quantity += 1
+            cartItems[index].product.quantidade += 1
         }
     }
     
@@ -147,6 +150,7 @@ extension ProductListViewModel {
         if let index = cartItems.firstIndex(where: { $0.product.id == product.id }) {
             if cartItems[index].quantity > 1 {
                 cartItems[index].quantity -= 1
+                cartItems[index].product.quantidade -= 1
             } else {
                 removeFromCart(cartItems[index])
             }
@@ -160,8 +164,9 @@ extension ProductListViewModel {
     
     func createOrderConfirmation(with order: OrderConfirmation) {
         Task {
+            let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? "" 
             do {
-              try await orderService.createOrder(forUserEmail: "", order: order)
+                try await orderService.createOrder(forUserEmail: email, order: order)
             } catch {
                 print("Erro ao criar pedido: \(error)")
             }

@@ -26,12 +26,12 @@ struct OrderDetails<ViewModel: OrderDetailsViewModeling>: View {
                             VStack(alignment: .leading, spacing: DS.Spacing.insetX) {
                                 
                                 HStack {
-                                    Text("Pedido #\($viewModel.order.id)")
+                                    Text("Pedido #\(viewModel.order.pedido.id)")
                                         .font(DS.Typography.sectionTitle())
                                     
                                     Spacer()
                                     
-                                    StatusBadge(status: viewModel.order.status)
+                                    StatusBadge(status: viewModel.order.pedido.status)
                                 }
                                 .padding(.horizontal, DS.Spacing.insetX)
                                 
@@ -39,8 +39,11 @@ struct OrderDetails<ViewModel: OrderDetailsViewModeling>: View {
                                 
                                 OrderSection(title: "Itens do Pedido", content: {
                                     VStack(spacing: DS.Spacing.insetX) {
-                                        ForEach(viewModel.itens, id: \.id) { item in
-                                            MyOrderItemRow(item: item, produto: viewModel.produtos[0])
+                                        ForEach(viewModel.itens.indices, id: \.self) { index in
+                                            MyOrderItemRow(
+                                                item: viewModel.itens[index],
+                                                produto: viewModel.produtos[index]
+                                            )
                                         }
                                     }
                                 })
@@ -65,7 +68,7 @@ struct OrderDetails<ViewModel: OrderDetailsViewModeling>: View {
                                     
                                     Spacer()
                                     
-                                    DSHilightValue(title: "R$ \(viewModel.calculateTotal())")
+                                    DSHilightValue(title: "R$ \(viewModel.order.total.twoDecimals)")
                                 }
                             }
                             .padding(.vertical)
