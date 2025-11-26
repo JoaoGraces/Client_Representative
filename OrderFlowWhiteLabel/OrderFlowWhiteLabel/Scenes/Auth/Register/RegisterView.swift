@@ -49,6 +49,42 @@ struct RegisterView<ViewModel: RegisterViewModeling>: View {
             }
             .padding(.horizontal, DS.Spacing.pageLeading)
             .padding(.top, 24)
+            
+            HStack(spacing: 8) {
+                Image(systemName: "briefcase")
+                    .foregroundStyle(DS.Colors.neutral900.opacity(0.6))
+                    .frame(width: 20, height: 20)
+                
+                Menu {
+                    ForEach(viewModel.representatives, id: \.self) { rep in
+                        Button(rep) {
+                            viewModel.selectedRepresentative = rep
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text(viewModel.selectedRepresentative == nil ? "Selecione o Representante" : "Representante: \(viewModel.selectedRepresentative!)")
+                            .foregroundStyle(viewModel.selectedRepresentative == nil ? DS.Colors.neutral900.opacity(0.3) : DS.Colors.neutral900)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Image(systemName: "chevron.down")
+                            .foregroundStyle(DS.Colors.neutral900.opacity(0.6))
+                            .font(.caption)
+                    }
+                }
+            }
+            .padding(.horizontal, DS.Spacing.insetX)
+            .frame(minHeight: 52)
+            .background(
+                RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous)
+                    .fill(DS.Colors.white)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous)
+                    .stroke(DS.Colors.neutral900.opacity(0.15), lineWidth: 1)
+            )
+            .background(DS.Shadow.xs())
+            .padding()
 
             if viewModel.isLoading {
                 ProgressView()

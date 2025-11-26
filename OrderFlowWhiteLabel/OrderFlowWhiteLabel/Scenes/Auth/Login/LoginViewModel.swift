@@ -36,6 +36,8 @@ class LoginViewModel: LoginViewModeling {
             
             let role = try await FirestoreManager.shared.getUserRole(email: email)
             
+            await OrderFlowCache.shared.set(email, forKey: .email)
+            
             await coordinator.completeAuthentication(role: role)
         } catch {
             print(error.localizedDescription)
