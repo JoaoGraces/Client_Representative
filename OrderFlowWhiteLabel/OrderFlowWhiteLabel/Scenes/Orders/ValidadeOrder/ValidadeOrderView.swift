@@ -147,12 +147,12 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                         }
                     }
                     
-                    if viewModel.order.status != .aprovado && viewModel.order.status != .cancelamentoSolicitado && viewModel.order.status != .cancelamento && viewModel.order.status != .enviado {
+                    if viewModel.order.status != .aprovado && viewModel.order.status != .cancelamentoSolicitado && viewModel.order.status != .cancelamento && viewModel.order.status != .enviado && viewModel.order.status != .finalizado  {
                         PrimaryButton(title: "Aprovar Pedido") {
                             viewModel.aproveOrder()
                         }
                     }
-                    if viewModel.order.status != .rejeitado && viewModel.order.status != .cancelamentoSolicitado && viewModel.order.status != .cancelamento && viewModel.order.status != .enviado {
+                    if viewModel.order.status != .rejeitado && viewModel.order.status != .cancelamentoSolicitado && viewModel.order.status != .cancelamento && viewModel.order.status != .enviado  && viewModel.order.status != .finalizado {
                         SecondaryButton(title: "Rejeitar Pedido") {
                             showRejectConfirmation = true
                         }
