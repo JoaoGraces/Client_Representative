@@ -10,11 +10,6 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-      /*  ClientCoordinatorView().onAppear {
-            Task {
-                await OrderFlowCache.shared.set("dasadsasdads@sddas.com", forKey: .email)
-            }
-        } */
         RootCoordinatorView()
     }
 }

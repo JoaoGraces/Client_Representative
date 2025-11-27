@@ -42,7 +42,7 @@ class RepresentativeOrdersViewModel: RepresentativeMyOrdersViewModeling {
     // Ação de navegação
     @MainActor
     func goToDetails(order: Pedido) {
-        coordinator?.goToDetails(order: order)
+       // coordinator?.goToDetails(order: order)
     }
     
     @MainActor

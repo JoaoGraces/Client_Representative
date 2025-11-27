@@ -10,7 +10,7 @@ import SwiftUI
 // (O enum RepresentativeRoute está 100% correto e não muda)
 enum RepresentativeRoute: Hashable {
     case cancelamento(Pedido, User)
-    case enviado(Pedido)
+    case enviado(Pedido, User)
     case alteracao(Pedido)
     case novoPedido(Pedido, User)
     case cancelamentoSolicitado(Pedido, User)
@@ -34,12 +34,9 @@ final class RepresentativeCoordinator: ObservableObject {
             let viewModel = ValidadeOrderViewModel(coordinator: self, pedido: pedido, user: user)
             ValidadeOrderView(viewModel: viewModel)
              
-        case .enviado(let pedido):
-            let viewModel = RepresentativeOrderDetailsViewModel(
-                coordinator: self,
-                pedido: pedido
-            )
-            RepresentativeOrderDetailsView(viewModel: viewModel)
+        case .enviado(let pedido, let user):
+            let viewModel = ValidadeOrderViewModel(coordinator: self, pedido: pedido, user: user)
+            ValidadeOrderView(viewModel: viewModel)
              
         case .alteracao(let pedido):
             ModificationAuthorizationView()
@@ -68,7 +65,7 @@ extension RepresentativeCoordinator: RepresentativeOrdersNavigation, Representat
     
     @MainActor
     func goToDetails(order: Pedido) {
-        go(to: .enviado(order))
+     //   go(to: .enviado(order))
     }
      
     @MainActor
@@ -78,7 +75,7 @@ extension RepresentativeCoordinator: RepresentativeOrdersNavigation, Representat
         case .cancelamento:
             go(to: .cancelamento(order, user))
         case .enviado:
-            go(to: .enviado(order))
+            go(to: .enviado(order, user))
         case .alteracao:
             go(to: .alteracao(order))
         case .criado:
