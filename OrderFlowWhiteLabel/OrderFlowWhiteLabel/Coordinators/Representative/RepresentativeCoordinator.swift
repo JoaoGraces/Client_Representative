@@ -12,7 +12,7 @@ enum RepresentativeRoute: Hashable {
     case cancelamento(Pedido)
     case enviado(Pedido)
     case alteracao(Pedido)
-    case novoPedido
+    case novoPedido(Pedido, User)
      
     func hash(into hasher: inout Hasher) {
         switch self {
@@ -30,7 +30,9 @@ enum RepresentativeRoute: Hashable {
 @MainActor
 final class RepresentativeCoordinator: ObservableObject {
     @Published var navigationStack = NavigationPath()
-     
+    private lazy var ordersViewModel: RepresentativeOrdersViewModel = {
+            return RepresentativeOrdersViewModel(coordinator: self)
+        }()
     func go(to route: RepresentativeRoute) { navigationStack.append(route) }
     func back() { if !navigationStack.isEmpty { navigationStack.removeLast() } }
     func backToRoot() { if !navigationStack.isEmpty { navigationStack = NavigationPath() } }
@@ -52,29 +54,28 @@ final class RepresentativeCoordinator: ObservableObject {
         case .alteracao(let pedido):
             ModificationAuthorizationView()
              
-        case .novoPedido:
-            NewOrderView() // Placeholder
+        case .novoPedido(let pedido, let user):
+            let viewModel = ValidadeOrderViewModel(coordinator: self, pedido: pedido, user: user)
+            ValidadeOrderView(viewModel: viewModel)
         }
     }
      
      
     @ViewBuilder
     func makeStartView() -> some View {
-        let viewModel = RepresentativeOrdersViewModel(coordinator: self)
-         
-        RepresentativeOrdersView(viewModel: viewModel)
+        RepresentativeOrdersView(viewModel: self.ordersViewModel)
     }
 }
 
 extension RepresentativeCoordinator: RepresentativeOrdersNavigation, RepresentativeOrderDetailsNavigation {
-     
+    
     @MainActor
     func goToDetails(order: Pedido) {
         go(to: .enviado(order))
     }
      
     @MainActor
-    func goToValidate(order: Pedido) {
+    func goToValidate(order: Pedido, user: User) {
          
         switch order.status {
         case .cancelamento:
@@ -84,7 +85,7 @@ extension RepresentativeCoordinator: RepresentativeOrdersNavigation, Representat
         case .alteracao:
             go(to: .alteracao(order))
         case .criado:
-            go(to: .novoPedido)
+            go(to: .novoPedido(order, user))
         default:
             go(to: .enviado(order))
         }
@@ -107,10 +108,10 @@ extension RepresentativeCoordinator: RepresentativeOrdersNavigation, Representat
 
 struct RepresentativeCoordinatorView: View {
     @StateObject private var coordinator = RepresentativeCoordinator()
-    
+    var onLogout: () -> Void
     var body: some View {
         TabView {
-            RepresentativeClientsView()
+            RepresentativeClientsView(didFinish: onLogout)
                 .tabItem {
                     Label("Clientes", systemImage: "person.2.crop.square.stack")
                 }
@@ -129,6 +130,6 @@ struct RepresentativeCoordinatorView: View {
     }
 }
 
-#Preview {
-    RepresentativeCoordinatorView()
-}
+/***#Preview {
+    RepresentativeCoordinatorView(onLogout: () -> Void)
+}***/

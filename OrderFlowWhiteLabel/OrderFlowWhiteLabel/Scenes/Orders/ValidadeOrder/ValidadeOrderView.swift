@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
-    @State private var viewModel: ViewModel
+    @ObservedObject private var viewModel: ViewModel
+    
+    @State private var showRejectConfirmation = false
     
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
@@ -28,7 +30,7 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                 VStack (spacing: DS.Spacing.insetX){
                     DSCard2 {
                         VStack(alignment: .leading) {
-                            DSSectionHeader(title: "Pedido \(viewModel.order.pedido.id)")
+                            DSSectionHeader(title: "Pedido #\(viewModel.order.id.uuidString.suffix(6))")
                             
                             HStack{
                                 Text("Data:")
@@ -36,7 +38,7 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                                 
                                 Spacer()
                                 
-                                Text(DateFormatter.ptLong.string(from: viewModel.order.pedido.dataCriacao))
+                                Text(DateFormatter.ptLong.string(from: viewModel.order.dataCriacao))
                                     .font(DS.Typography.body())
                             }
                             
@@ -46,7 +48,7 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                                 
                                 Spacer()
                                 
-                                Text(viewModel.empresa?.nomeFantasia ?? "")
+                                Text(viewModel.usuario.name)
                                     .font(DS.Typography.bodySemibold())
                             }
                             
@@ -56,7 +58,7 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                                 
                                 Spacer()
                                 
-                                Text(viewModel.empresa?.nomeFantasia ?? "")
+                                Text(viewModel.usuario.address)
                                     .font(DS.Typography.bodySemibold())
                             }
                             
@@ -66,10 +68,21 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                                 
                                 Spacer()
                                 
-                                StatusBadge(status: viewModel.order.pedido.status)
+                                StatusBadge(status: viewModel.order.status)
                             }
                             
                             DSFullInsetDivider()
+                            
+                            HStack{
+                                Text("Frete:")
+                                    .font(DS.Typography.body())
+                                
+                                Spacer()
+                                
+                                Text("R$ \(viewModel.order.taxaEntrega.twoDecimals)")
+                                    .font(DS.Typography.bodySemibold())
+                            }
+                            .padding(.top)
                             
                             HStack{
                                 Text("Valor Total:")
@@ -77,10 +90,10 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                                 
                                 Spacer()
                                 
-                                Text("\(viewModel.calculateTotal())")
+                                Text("R$ \(viewModel.order.total.twoDecimals)")
                                     .font(DS.Typography.bodySemibold())
                             }
-                            .padding(.vertical)
+                            .padding(.bottom)
                             
                         }
                         .padding()
@@ -98,13 +111,13 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                                         Text("Produto")
                                             .font(DS.Typography.bodySemibold())
                                         
-                                        Text("\(item.quantidade)x \(item.precoUnitarioMomento)")
+                                        Text("\(item.quantidade)x \(item.precoUnitarioMomento.twoDecimals)")
                                             .font(DS.Typography.body())
                                     }
                                     
                                     Spacer()
                                     
-                                    Text("R$ \(item.valorTotal)")
+                                    Text("R$ \(item.valorTotal.twoDecimals)")
                                         .font(DS.Typography.bodySemibold())
                                 }
                                 
@@ -112,15 +125,27 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                         }
                         .padding()
                     }
-                
+                    
                     DSFullInsetDivider()
                     
-                    PrimaryButton(title: "Aprovar Pedido") {
-                        viewModel.aproveOrder()
+                    
+                    if viewModel.order.status != .aprovado {
+                        PrimaryButton(title: "Aprovar Pedido") {
+                            viewModel.aproveOrder()
+                        }
                     }
                     
                     SecondaryButton(title: "Rejeitar Pedido") {
-                        viewModel.rejectOrder()
+                        showRejectConfirmation = true
+                    }
+                    .alert("Confirmar Rejeição", isPresented: $showRejectConfirmation) {
+                        Button("Cancelar", role: .cancel) { }
+                        
+                        Button("Rejeitar", role: .destructive) {
+                            viewModel.rejectOrder()
+                        }
+                    } message: {
+                        Text("Tem certeza que deseja rejeitar este pedido? Esta ação não pode ser desfeita.")
                     }
                     
                 }

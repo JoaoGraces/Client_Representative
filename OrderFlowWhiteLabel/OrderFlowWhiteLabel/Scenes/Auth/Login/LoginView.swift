@@ -14,7 +14,7 @@ struct LoginView<ViewModel: LoginViewModeling>: View {
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
-
+    
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 16) {
@@ -28,17 +28,20 @@ struct LoginView<ViewModel: LoginViewModeling>: View {
                 IconTextField(text: $viewModel.email, placeholder: "E-mail", systemImage: "envelope", keyboard: .emailAddress, autocapitalization: .never)
                     .textContentType(.emailAddress)
                     .submitLabel(.next)
-
+                    
+                
                 IconSecureField(text: $viewModel.password, placeholder: "Senha", systemImage: "lock")
                     .textContentType(.newPassword)
                     .submitLabel(.next)
                 
-                PrimaryButton(title: "Login") {
+                PrimaryButton(title: viewModel.isLoading ? "Entrando..." : "Login") {
                     Task {
                         await viewModel.login()
                     }
                 }
                 .padding(.top, 24)
+                .opacity(viewModel.isLoading ? 0.6 : 1.0)
+                .disabled(viewModel.isLoading)
                 
                 Button(action: viewModel.goToRegister) {
                     Text("Já tem uma conta? Voltar ao Login")
@@ -53,6 +56,11 @@ struct LoginView<ViewModel: LoginViewModeling>: View {
         }
         .background(DS.Colors.white)
         .ignoresSafeArea(edges: [])
+        .alert("Atenção", isPresented: $viewModel.showError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage)
+        }
     }
     
 }

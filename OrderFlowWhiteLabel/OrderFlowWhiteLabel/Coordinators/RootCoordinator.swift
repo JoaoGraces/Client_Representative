@@ -16,7 +16,7 @@ final class RootCoordinator: ObservableObject {
         case pending
         case refusedClient
     }
-
+    
     @Published var currentFlow: RootFlow = .auth
     
     func completeAuthentication(role: UserRole) {
@@ -33,6 +33,11 @@ final class RootCoordinator: ObservableObject {
             }
         }
     }
+    func logout() {
+        withAnimation {
+            self.currentFlow = .auth
+        }
+    }
 }
 
 struct RootCoordinatorView: View {
@@ -47,8 +52,9 @@ struct RootCoordinatorView: View {
             ClientCoordinatorView()
             
         case .representativeApp:
-            RepresentativeCoordinatorView()
-            
+            RepresentativeCoordinatorView(onLogout: {
+                coordinator.logout()
+            })
         case .pending:
             PendingView()
             

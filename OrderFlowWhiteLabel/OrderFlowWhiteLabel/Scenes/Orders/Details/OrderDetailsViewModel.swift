@@ -9,12 +9,12 @@ import Foundation
 import SwiftUI
 
 protocol OrderDetailsViewModeling: ObservableObject {
-    var order: OrderConfirmation { get set }
+    var order: Pedido { get set }
     var itens: [ItemPedido] { get }
     var produtos: [Produto] { get }
     
     var empresa: Empresa? { get set }
-    var usuario: Usuario? { get set }
+    var usuario: User? { get set }
     var viewState: ViewState { get }
     
     func calculateTotal() -> Double
@@ -27,15 +27,16 @@ protocol OrderDetailsViewModeling: ObservableObject {
 class OrderDetailsViewModel: OrderDetailsViewModeling {
     var itens: [ItemPedido] = []
     var produtos: [Produto] = []
-    var order: OrderConfirmation
+    var order: Pedido
     var empresa: Empresa?
-    var usuario: Usuario?
+    var usuario: User?
     
     var viewState: ViewState = .new
     
     private let coordinator: OrdersCoordinator
+    private let fireStoreManager  = FirestoreManager.shared
     
-    init(coordinator: OrdersCoordinator, pedido: OrderConfirmation) {
+    init(coordinator: OrdersCoordinator, pedido: Pedido) {
         self.coordinator = coordinator
         self.order = pedido
     }
@@ -43,12 +44,6 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
     func fetchPipeline() async {
         do {
             try await fetchOrder()
-        } catch {
-            self.viewState = .error
-        }
-        
-        do {
-            try await fetchCompany()
         } catch {
             self.viewState = .error
         }
@@ -77,19 +72,16 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
     private func fetchOrder() async throws {
         let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
         
-        self.produtos = order.itens
-        self.itens = order.itens.map { item in
-            ItemPedido(pedidoId: order.pedido.id, produtoId: item.id, quantidade: item.quantidade, precoUnitarioMomento: Decimal(item.precoUnidade))
+        self.produtos = order.produtos
+        self.itens = order.produtos.map { item in
+            ItemPedido(pedidoId: order.id, produtoId: item.id, quantidade: item.quantidade, precoUnitarioMomento: Decimal(item.precoUnidade))
         }
     }
     
     private func fetchOrderMock() async throws {
-        let pedidoMock = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .alteracao, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la", dataCriacao: Date())
+        let pedidoMock = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .alteracao, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la", dataCriacao: Date(), produtos: [], taxaEntrega: 10.0)
         
-        
-        let orderMock = OrderConfirmation(pedido: pedidoMock, itens: [], taxaEntrega: 1)
-        
-        self.order = orderMock
+        self.order = pedidoMock
         
         let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
         
@@ -133,17 +125,16 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
         
     }
     
-    private func fetchCompany() async throws {
-        let empresaMock = Empresa(id: UUID(), razaoSocial: "Empresa Teste", nomeFantasia: "Nome Fantasia", cnpj: "123.1323/321", tipo: .clienteFinal, distribuidoraPaiId: UUID())
-        self.empresa = empresaMock
-    }
-    
     private func fetchUsuario() async throws {
-        let usuarioMock = Usuario(id: UUID(), nomeCompleto: "Nome completo", senha_hash: "Senha", email: "email.com", papel: .adminCliente, empresaId: UUID(), dataCriacao: Date())
-        self.usuario = usuarioMock
+        Task {
+            let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? ""
+            do {
+                let user = try await fireStoreManager.getUserLogged(email: email)
+                self.usuario = user
+            } catch {
+                print("Erro ao puxar user em orderDetail")
+            }
+        }
+        
     }
-    
-    
-    
-    
 }

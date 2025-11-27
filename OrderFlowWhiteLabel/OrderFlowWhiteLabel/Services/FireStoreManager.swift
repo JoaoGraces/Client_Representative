@@ -9,7 +9,7 @@ import Foundation
 import FirebaseFirestore
 import FirebaseAuth
 
-enum UserRole: String {
+enum UserRole: String, Codable {
     case pending
     case client
     case representative
@@ -50,7 +50,6 @@ final class FirestoreManager {
         }
         
         let userDoc = try await db.collection("users").document(email).getDocument()
-        
         if userDoc.exists {
             if let data = userDoc.data(),
                let roleString = data["role"] as? String,
@@ -75,4 +74,34 @@ final class FirestoreManager {
         
         return clients
     }
+    
+    func getUserLogged(email: String) async throws -> User {
+        let snapshot = try await db.collection("users")
+            .document(email)
+            .getDocument()
+        
+        guard snapshot.exists else {
+            throw NSError(domain: "UserNotFound", code: 404)
+        }
+        
+        return try snapshot.data(as: User.self)
+    }
+    
+    func updateClientRole(userId: String, newRole: UserRole) async throws {
+        try await db.collection("users").document(userId).updateData([
+            "role": newRole.rawValue
+        ])
+    }
+    
+    func updateOrderStatus(
+            forUserEmail email: String, orderId: UUID, newStatus: PedidoStatus) async throws {
+            let docRef = db.collection("users")
+                .document(email)
+                .collection("pedidos")
+                .document(orderId.uuidString)
+
+            try await docRef.updateData([
+                "status": newStatus.rawValue
+            ])
+        }
 }

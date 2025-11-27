@@ -24,16 +24,15 @@ struct Usuario: Codable, Identifiable {
  case adminDistribuidora = "ADMIN_DISTRIBUIDORA"
  }
  
-
 //esse é o model do Firebase
- struct User: Identifiable, Codable {
+ struct User: Identifiable, Codable, Hashable {
      @DocumentID var id: String?
      
      let name: String
      let email: String
      let phone: String
      let address: String
-     let role: String
+     var role: UserRole
      
      let representativeId: String
      

@@ -132,7 +132,9 @@ struct OrderSentView: View {
         dataVencimentoPagamento: Date().addingTimeInterval(86400 * 7),
         statusRecebimento: nil,
         observacoesCliente: "Entregar na portaria",
-        dataCriacao: Date()
+        dataCriacao: Date(),
+        produtos: [],
+        taxaEntrega: 1
     )
 
     let produtosExemplo = [

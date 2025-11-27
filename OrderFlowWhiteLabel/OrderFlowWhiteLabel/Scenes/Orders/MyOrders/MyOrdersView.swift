@@ -28,12 +28,10 @@ struct MyOrdersView<ViewModel: MyOrdersViewModeling>: View {
                 VStack (spacing: DS.Spacing.insetX){
                     ForEach(viewModel.orders, id: \.self) { order in
                         DSCard2 {
-                            if let empresa = viewModel.empresa{
-                                OrderCell(order: order, empresa: empresa, action: {
+                                OrderCell(order: order, action: {
                                     viewModel.goToDetails(order: order)
                                 })
                                     .padding(DS.Spacing.insetX)
-                            }
                         }
                     }
                 }

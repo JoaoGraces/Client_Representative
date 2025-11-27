@@ -8,30 +8,25 @@
 import SwiftUI
 
 struct OrderCell: View {
-    var order: OrderConfirmation
-    var empresa: Empresa
+    var order: Pedido
     var action: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Spacing.smallPadding) {
             HStack {
-                Text("PEDIDO #\(order.pedido.id)")
+                Text("PEDIDO #\(order.id.uuidString.suffix(6))")
                     .font(DS.Typography.sectionTitle())
                 
                 Spacer()
                 
-                StatusBadge(status: order.pedido.status)
+                StatusBadge(status: order.status)
             }
-            
-            Text(empresa.nomeFantasia)
-                .foregroundStyle(DS.Colors.neutral700)
-                .font(DS.Typography.body())
             
             
             HStack() {
                 Image(systemName: "calendar")
                     .foregroundColor(DS.Colors.neutral700)
-                Text(DateFormatter.ptLong.string(from: order.pedido.dataEntregaSolicitada))
+                Text(DateFormatter.ptLong.string(from: order.dataEntregaSolicitada))
                     .font(DS.Typography.body())
             }
             
@@ -41,11 +36,11 @@ struct OrderCell: View {
                 
                 Spacer()
                 
-                Text(String(order.itens.count) + " itens")
+                Text(String(order.produtos.count) + " itens")
                     .font(DS.Typography.body())
             }
             
-            Text(order.pedido.status.message())
+            Text(order.status.message())
                 .font(DS.Typography.body())
             
             PrimaryButton(title: "Ver Detalhes") {

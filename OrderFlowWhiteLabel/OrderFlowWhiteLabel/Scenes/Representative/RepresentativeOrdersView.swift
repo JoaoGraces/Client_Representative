@@ -8,47 +8,58 @@
 import SwiftUI
 
 struct RepresentativeOrdersView<ViewModel: RepresentativeMyOrdersViewModeling>: View {
-    @State private var viewModel: ViewModel
+    @ObservedObject private var viewModel: ViewModel
     
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
     
     var body: some View {
-        switch viewModel.viewState {
-        case .new, .loading:
-            ProgressView()
-                .onAppear{
-                    Task{
-                        await viewModel.fetchPipeline()
-                    }
-                }
-        case .loaded:
-            ScrollView{
-                VStack (spacing: DS.Spacing.insetX){
-                    ForEach(viewModel.orders, id: \.id) { order in
-                        DSCard2 {
-                        /*    if let empresa = viewModel.empresa,  let item = viewModel.item {
-                                OrderCell(order: order, empresa: empresa, item: item, action: {
-                                    
-                                    viewModel.goToValidate(order: order)
-                                    
+        Group {
+            switch viewModel.viewState {
+            case .new, .loading:
+                ProgressView()
+            case .loaded:
+                ScrollView{
+                    VStack (spacing: DS.Spacing.insetX){
+                        ForEach(viewModel.ordersAndClient, id: \.pedido.id) { item in
+                            DSCard2 {
+                                OrderCell(order: item.pedido, action: {
+                                    viewModel.goToValidate(order: item.pedido, user: item.usuario)
                                 })
-                                    .padding(DS.Spacing.insetX)
-                            } */
+                                .padding(DS.Spacing.insetX)
+                            }
                         }
                     }
                 }
+                .navigationTitle("Pedidos")
+                .navigationBarTitleDisplayMode(.inline)
+            case .error:
+                VStack {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.largeTitle)
+                        .foregroundColor(.orange)
+                    Text("Erro ao carregar pedidos")
+                        .font(.headline)
+                    
+                    Button("Tentar Novamente") {
+                        Task { await viewModel.fetchPipeline() }
+                    }
+                    .padding()
+                }
             }
-            .navigationTitle("Pedidos")
-            .navigationBarTitleDisplayMode(.inline)
-        case .error:
-            EmptyView()
+        }
+        .onAppear{
+            Task{
+                await viewModel.fetchPipeline()
+            }
         }
     }
 }
 
 
 #Preview {
-    RepresentativeCoordinatorView()
+    RepresentativeCoordinatorView(onLogout: {
+        print("Logout simulado no Preview")
+    })
 }

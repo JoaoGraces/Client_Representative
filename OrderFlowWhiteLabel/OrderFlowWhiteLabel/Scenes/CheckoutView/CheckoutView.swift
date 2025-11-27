@@ -127,7 +127,9 @@ struct CheckoutView: View {
             dataVencimentoPagamento: Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date(),
             statusRecebimento: nil,
             observacoesCliente: nil,
-            dataCriacao: Date()
+            dataCriacao: Date(),
+            produtos: items.map { $0.product },
+            taxaEntrega: deliveryFee
         )
 
         let confirmation = OrderConfirmation(
@@ -136,7 +138,7 @@ struct CheckoutView: View {
             taxaEntrega: deliveryFee
         )
         
-        viewModel.createOrderConfirmation(with: confirmation)
+        viewModel.createOrderConfirmation(with: novoPedido)
         coordinator.go(to: .orderConfirmation(confirmation))
     }
 }

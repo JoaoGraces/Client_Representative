@@ -47,7 +47,8 @@ struct OrderConfirmation: Hashable, Codable {
     var statusText: String {
         switch pedido.status {
         case .criado: return "Criado"
-        case .validado: return "Validado"
+        case .aprovado: return "Aprovado"
+        case .rejeitado: return "Rejeitado"
         case .enviado: return "Enviado"
         case .entregue: return "Entregue"
         case .finalizado: return "Finalizado"
