@@ -81,12 +81,13 @@ struct OrderDetails<ViewModel: OrderDetailsViewModeling>: View {
                             .padding(.vertical)
                         }
                         
-                        PrimaryButton(title: "Solicitar Alteração") {
-                            //TODO: Concluir Ação
-                        }
-                        
-                        DangerButton(title: "Solicitar Cancelamento") {
-                            //TODO: Concluir Ação
+                        switch viewModel.order.status {
+                        case .rejeitado, .finalizado, .cancelamento :
+                            EmptyView()
+                        default:
+                            DangerButton(title: "Solicitar Cancelamento") {
+                                //TODO: Concluir Ação
+                            }
                         }
                     }
                     .navigationTitle("Detalhes do Pedido")
