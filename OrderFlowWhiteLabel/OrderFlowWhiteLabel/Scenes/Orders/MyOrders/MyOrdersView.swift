@@ -44,7 +44,7 @@ struct MyOrdersView<ViewModel: MyOrdersViewModeling>: View {
                 }
             }
         case .error:
-            EmptyView()
+            GenericErrorView()
         }
     }
 }

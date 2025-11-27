@@ -17,82 +17,79 @@ struct OrderDetails<ViewModel: OrderDetailsViewModeling>: View {
     var body: some View {
         switch viewModel.viewState {
         case .error:
-            EmptyView()
+            GenericErrorView()
         case .loaded:
-            if let usuario = viewModel.usuario {
-                ScrollView {
-                    VStack(spacing: DS.Spacing.pageLeading){
-                        DSCard2 {
-                            VStack(alignment: .leading, spacing: DS.Spacing.insetX) {
+            ScrollView {
+                VStack(spacing: DS.Spacing.pageLeading){
+                    DSCard2 {
+                        VStack(alignment: .leading, spacing: DS.Spacing.insetX) {
+                            
+                            HStack {
+                                Text("Pedido #\(viewModel.order.id)")
+                                    .font(DS.Typography.sectionTitle())
                                 
-                                HStack {
-                                    Text("Pedido #\(viewModel.order.id)")
-                                        .font(DS.Typography.sectionTitle())
-                                    
-                                    Spacer()
-                                    
-                                    StatusBadge(status: viewModel.order.status)
-                                }
-                                .padding(.horizontal, DS.Spacing.insetX)
+                                Spacer()
                                 
-                                DSFullInsetDivider()
-                                
-                                OrderSection(title: "Itens do Pedido", content: {
-                                    VStack(spacing: DS.Spacing.insetX) {
-                                        ForEach(viewModel.itens.indices, id: \.self) { index in
-                                            MyOrderItemRow(
-                                                item: viewModel.itens[index],
-                                                produto: viewModel.produtos[index]
-                                            )
-                                        }
+                                StatusBadge(status: viewModel.order.status)
+                            }
+                            .padding(.horizontal, DS.Spacing.insetX)
+                            
+                            DSFullInsetDivider()
+                            
+                            OrderSection(title: "Itens do Pedido", content: {
+                                VStack(spacing: DS.Spacing.insetX) {
+                                    ForEach(viewModel.itens.indices, id: \.self) { index in
+                                        MyOrderItemRow(
+                                            item: viewModel.itens[index],
+                                            produto: viewModel.produtos[index]
+                                        )
                                     }
-                                })
-                                
-                                OrderSection(title: "Endereço de Entrega") {
-                                    //TODO: não tem endereço nem de empresa nem de Usuario
-                                    Text("TODO COLOCAR ENDEREÇO AQUI")
-                                        .font(.system(.subheadline))
-                                        .foregroundColor(.secondary)
-                                        .padding(.horizontal)
                                 }
+                            })
+                            
+                            OrderSection(title: "Endereço de Entrega") {
+                                Text(viewModel.usuario.address)
+                                    .font(.system(.subheadline))
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal)
+                            }
+                            
+                            OrderSection(title: "Informações do Cliente") {
+                                Text(viewModel.usuario.name)
+                                    .font(.system(.subheadline))
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal)
+                            }
+                            
+                            OrderSection(title: "Frete") {
+                                Text("R$ \(viewModel.order.taxaEntrega.twoDecimals)")
+                                    .font(.system(.subheadline))
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal)
+                            }
+                            
+                            HStack {
+                                DSSectionHeader(title: "Total do Pedido")
                                 
-                                OrderSection(title: "Informações do Cliente") {
-                                    Text(usuario.name)
-                                        .font(.system(.subheadline))
-                                        .foregroundColor(.secondary)
-                                        .padding(.horizontal)
-                                }
+                                Spacer()
                                 
-                                OrderSection(title: "Frete") {
-                                    Text(viewModel.order.taxaEntrega.twoDecimals)
-                                        .font(.system(.subheadline))
-                                        .foregroundColor(.secondary)
-                                        .padding(.horizontal)
-                                }
-                                
-                                HStack {
-                                    DSSectionHeader(title: "Total do Pedido")
-                                    
-                                    Spacer()
-                                    
-                                    DSHilightValue(title: "R$ \(viewModel.order.total.twoDecimals)")
-                                }
+                                DSHilightValue(title: "R$ \(viewModel.order.total.twoDecimals)")
                             }
                             .padding(.vertical)
                         }
                         
-                        PrimaryButton(title: "Solicitar Alteração") {
-                            //TODO: Concluir Ação
-                        }
-                        
-                        DangerButton(title: "Solicitar Cancelamento") {
-                            //TODO: Concluir Ação
+                        switch viewModel.order.status {
+                        case .rejeitado, .finalizado, .cancelamento :
+                            EmptyView()
+                        default:
+                            DangerButton(title: "Solicitar Cancelamento") {
+                                //TODO: Concluir Ação
+                            }
                         }
                     }
-                    .navigationTitle("Detalhes do Pedido")
-                    .navigationBarTitleDisplayMode(.inline)
                 }
-                
+                .navigationTitle("Detalhes do Pedido")
+                .navigationBarTitleDisplayMode(.inline)
             }
         case .loading, .new:
             ProgressView()

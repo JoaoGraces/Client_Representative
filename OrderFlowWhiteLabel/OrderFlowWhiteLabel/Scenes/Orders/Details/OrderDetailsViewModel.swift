@@ -14,12 +14,11 @@ protocol OrderDetailsViewModeling: ObservableObject {
     var produtos: [Produto] { get }
     
     var empresa: Empresa? { get set }
-    var usuario: User? { get set }
+    var usuario: User { get set }
     var viewState: ViewState { get }
     
     func calculateTotal() -> Double
     func fetchPipeline() async
-    func requestUpdate()
     func cancelOrder()
 }
 
@@ -29,16 +28,17 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
     var produtos: [Produto] = []
     var order: Pedido
     var empresa: Empresa?
-    var usuario: User?
+    var usuario: User
     
     var viewState: ViewState = .new
     
     private let coordinator: OrdersCoordinator
     private let fireStoreManager  = FirestoreManager.shared
     
-    init(coordinator: OrdersCoordinator, pedido: Pedido) {
+    init(coordinator: OrdersCoordinator, pedido: Pedido, user: User) {
         self.coordinator = coordinator
         self.order = pedido
+        self.usuario = user
     }
     
     func fetchPipeline() async {
@@ -61,17 +61,11 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
         return itens.reduce(0) { $0 + $1.valorTotal }
     }
     
-    func requestUpdate() {
-        //TODO: Fazer chamada do FireBase
-    }
-    
     func cancelOrder() {
         //TODO: Fazer chamada do FireBase
     }
     
     private func fetchOrder() async throws {
-        let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
-        
         self.produtos = order.produtos
         self.itens = order.produtos.map { item in
             ItemPedido(pedidoId: order.id, produtoId: item.id, quantidade: item.quantidade, precoUnitarioMomento: Decimal(item.precoUnidade))
