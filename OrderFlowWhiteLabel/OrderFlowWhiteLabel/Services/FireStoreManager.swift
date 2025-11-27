@@ -75,6 +75,16 @@ final class FirestoreManager {
         return clients
     }
     
+    func getUserLogged(email: String) async throws -> User {
+        let snapshot = try await db.collection("users")
+            .document(email)
+            .getDocument()
+
+        guard snapshot.exists else {
+            throw NSError(domain: "UserNotFound", code: 404)
+        }
+
+        return try snapshot.data(as: User.self)
     func updateClientRole(userId: String, newRole: UserRole) async throws {
         let db = Firestore.firestore()
         

@@ -12,5 +12,5 @@ protocol RepresentativeOrdersNavigation: AnyObject {
     func goToDetails(order: Pedido)
     
     @MainActor
-    func goToValidate(order: Pedido)
+    func goToValidate(order: Pedido, user: User)
 }

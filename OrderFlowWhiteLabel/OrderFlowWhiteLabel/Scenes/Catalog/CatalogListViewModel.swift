@@ -162,9 +162,9 @@ extension ProductListViewModel {
         cartItems.removeAll()
     }
     
-    func createOrderConfirmation(with order: OrderConfirmation) {
+    func createOrderConfirmation(with order: Pedido) {
         Task {
-            let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? "" 
+            let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? ""
             do {
                 try await orderService.createOrder(forUserEmail: email, order: order)
             } catch {

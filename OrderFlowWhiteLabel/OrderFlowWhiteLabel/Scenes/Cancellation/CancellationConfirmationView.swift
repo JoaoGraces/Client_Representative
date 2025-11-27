@@ -106,7 +106,9 @@ struct ConfirmarCancelamentoView_Previews: PreviewProvider {
             dataVencimentoPagamento: Date(),
             statusRecebimento: nil,
             observacoesCliente: nil,
-            dataCriacao: ISO8601DateFormatter().date(from: "2024-04-23T10:30:00Z") ?? Date()
+            dataCriacao: ISO8601DateFormatter().date(from: "2024-04-23T10:30:00Z") ?? Date(),
+            produtos: [],
+            taxaEntrega: 1
         )
 
         let itens = [

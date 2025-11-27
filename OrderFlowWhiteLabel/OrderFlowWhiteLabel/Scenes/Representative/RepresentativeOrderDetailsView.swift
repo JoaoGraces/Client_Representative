@@ -117,7 +117,9 @@ private class PreviewDetailsCoordinator: RepresentativeOrderDetailsNavigation {
         dataVencimentoPagamento: Date(),
         statusRecebimento: .conforme,
         observacoesCliente: "Pedido Mock para Preview",
-        dataCriacao: Date()
+        dataCriacao: Date(),
+        produtos: [],
+        taxaEntrega: 1
     )
     
     // Criamos o seu ViewModel real (o novo)

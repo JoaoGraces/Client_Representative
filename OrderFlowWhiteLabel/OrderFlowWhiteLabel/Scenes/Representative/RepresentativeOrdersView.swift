@@ -15,35 +15,33 @@ struct RepresentativeOrdersView<ViewModel: RepresentativeMyOrdersViewModeling>: 
     }
     
     var body: some View {
-        switch viewModel.viewState {
-        case .new, .loading:
-            ProgressView()
-                .onAppear{
-                    Task{
-                        await viewModel.fetchPipeline()
-                    }
-                }
-        case .loaded:
-            ScrollView{
-                VStack (spacing: DS.Spacing.insetX){
-                    ForEach(viewModel.orders, id: \.id) { order in
-                        DSCard2 {
-                        /*    if let empresa = viewModel.empresa,  let item = viewModel.item {
-                                OrderCell(order: order, empresa: empresa, item: item, action: {
-                                    
-                                    viewModel.goToValidate(order: order)
-                                    
+        Group {
+            switch viewModel.viewState {
+            case .new, .loading:
+                ProgressView()
+            case .loaded:
+                ScrollView{
+                    VStack (spacing: DS.Spacing.insetX){
+                        ForEach(viewModel.ordersAndClient, id: \.pedido.id) { item in
+                            DSCard2 {
+                                OrderCell(order: item.pedido, action: {
+                                    viewModel.goToValidate(order: item.pedido, user: item.usuario)
                                 })
-                                    .padding(DS.Spacing.insetX)
-                            } */
+                                .padding(DS.Spacing.insetX)
+                            }
                         }
                     }
                 }
+                .navigationTitle("Pedidos")
+                .navigationBarTitleDisplayMode(.inline)
+            case .error:
+                EmptyView()
             }
-            .navigationTitle("Pedidos")
-            .navigationBarTitleDisplayMode(.inline)
-        case .error:
-            EmptyView()
+        }
+        .onAppear{
+            Task{
+                await viewModel.fetchPipeline()
+            }
         }
     }
 }

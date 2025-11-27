@@ -12,7 +12,7 @@ enum RepresentativeRoute: Hashable {
     case cancelamento(Pedido)
     case enviado(Pedido)
     case alteracao(Pedido)
-    case novoPedido
+    case novoPedido(Pedido, User)
      
     func hash(into hasher: inout Hasher) {
         switch self {
@@ -52,8 +52,9 @@ final class RepresentativeCoordinator: ObservableObject {
         case .alteracao(let pedido):
             ModificationAuthorizationView()
              
-        case .novoPedido:
-            NewOrderView() // Placeholder
+        case .novoPedido(let pedido, let user):
+            let viewModel = ValidadeOrderViewModel(coordinator: self, pedido: pedido, user: user)
+            ValidadeOrderView(viewModel: viewModel)
         }
     }
      
@@ -67,14 +68,14 @@ final class RepresentativeCoordinator: ObservableObject {
 }
 
 extension RepresentativeCoordinator: RepresentativeOrdersNavigation, RepresentativeOrderDetailsNavigation {
-     
+    
     @MainActor
     func goToDetails(order: Pedido) {
         go(to: .enviado(order))
     }
      
     @MainActor
-    func goToValidate(order: Pedido) {
+    func goToValidate(order: Pedido, user: User) {
          
         switch order.status {
         case .cancelamento:
@@ -84,7 +85,7 @@ extension RepresentativeCoordinator: RepresentativeOrdersNavigation, Representat
         case .alteracao:
             go(to: .alteracao(order))
         case .criado:
-            go(to: .novoPedido)
+            go(to: .novoPedido(order, user))
         default:
             go(to: .enviado(order))
         }

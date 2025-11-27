@@ -18,6 +18,11 @@ struct Pedido: Codable, Identifiable, Hashable {
     let statusRecebimento: StatusRecebimento?
     let observacoesCliente: String?
     let dataCriacao: Date
+    let produtos: [Produto]
+    let taxaEntrega: Double
+    
+    var subtotal: Double { produtos.reduce(0) { $0 + $1.preco } }
+    var total: Double { subtotal + taxaEntrega }
 }
 
 enum PedidoStatus: String, Codable {
@@ -64,4 +69,10 @@ enum StatusRecebimento: String, Codable {
     case conforme = "CONFORME"
     case problemaRecebido = "PROBLEMA_RECEBIDO"
     case problemaNaoRecebido = "PROBLEMA_NAO_RECEBIDO"
+}
+
+
+struct PedidoComCliente {
+    let pedido: Pedido
+    let usuario: User
 }

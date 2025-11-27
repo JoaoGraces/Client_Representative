@@ -25,7 +25,7 @@ struct Usuario: Codable, Identifiable {
  }
  
 //esse é o model do Firebase
- struct User: Identifiable, Codable {
+ struct User: Identifiable, Codable, Hashable {
      @DocumentID var id: String?
      
      let name: String

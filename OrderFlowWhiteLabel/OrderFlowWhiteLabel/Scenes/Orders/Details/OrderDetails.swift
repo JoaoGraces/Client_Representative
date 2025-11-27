@@ -19,19 +19,19 @@ struct OrderDetails<ViewModel: OrderDetailsViewModeling>: View {
         case .error:
             EmptyView()
         case .loaded:
-            if let empresa = viewModel.empresa, let usuario = viewModel.usuario {
+            if let usuario = viewModel.usuario {
                 ScrollView {
                     VStack(spacing: DS.Spacing.pageLeading){
                         DSCard2 {
                             VStack(alignment: .leading, spacing: DS.Spacing.insetX) {
                                 
                                 HStack {
-                                    Text("Pedido #\(viewModel.order.pedido.id)")
+                                    Text("Pedido #\(viewModel.order.id)")
                                         .font(DS.Typography.sectionTitle())
                                     
                                     Spacer()
                                     
-                                    StatusBadge(status: viewModel.order.pedido.status)
+                                    StatusBadge(status: viewModel.order.status)
                                 }
                                 .padding(.horizontal, DS.Spacing.insetX)
                                 
@@ -50,14 +50,21 @@ struct OrderDetails<ViewModel: OrderDetailsViewModeling>: View {
                                 
                                 OrderSection(title: "Endereço de Entrega") {
                                     //TODO: não tem endereço nem de empresa nem de Usuario
-                                    Text("\(empresa.nomeFantasia)")
+                                    Text("TODO COLOCAR ENDEREÇO AQUI")
                                         .font(.system(.subheadline))
                                         .foregroundColor(.secondary)
                                         .padding(.horizontal)
                                 }
                                 
                                 OrderSection(title: "Informações do Cliente") {
-                                    Text(usuario.nomeCompleto)
+                                    Text(usuario.name)
+                                        .font(.system(.subheadline))
+                                        .foregroundColor(.secondary)
+                                        .padding(.horizontal)
+                                }
+                                
+                                OrderSection(title: "Frete") {
+                                    Text(viewModel.order.taxaEntrega.twoDecimals)
                                         .font(.system(.subheadline))
                                         .foregroundColor(.secondary)
                                         .padding(.horizontal)
