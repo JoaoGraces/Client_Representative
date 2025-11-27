@@ -13,18 +13,6 @@ enum RepresentativeRoute: Hashable {
     case enviado(Pedido)
     case alteracao(Pedido)
     case novoPedido(Pedido, User)
-     
-    func hash(into hasher: inout Hasher) {
-        switch self {
-        case .cancelamento(let p): hasher.combine("c"); hasher.combine(p.id)
-        case .enviado(let p): hasher.combine("e"); hasher.combine(p.id)
-        case .alteracao(let p): hasher.combine("a"); hasher.combine(p.id)
-        case .novoPedido: hasher.combine("n")
-        }
-    }
-    static func == (lhs: RepresentativeRoute, rhs: RepresentativeRoute) -> Bool {
-        lhs.hashValue == rhs.hashValue
-    }
 }
 
 @MainActor

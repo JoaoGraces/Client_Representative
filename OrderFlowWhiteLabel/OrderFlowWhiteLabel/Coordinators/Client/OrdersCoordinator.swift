@@ -15,17 +15,20 @@ enum OrdersRoute: Hashable {
 @MainActor
 final class OrdersCoordinator: ObservableObject {
     @Published var navigationStack = NavigationPath()
-     
+    private lazy var myOrdersViewModel: MyOrdersViewModel = {
+        return MyOrdersViewModel(coordinator: self)
+    }()
+    
     func go(to route: OrdersRoute) {
         navigationStack.append(route)
     }
-     
+    
     func back() {
         if !navigationStack.isEmpty {
             navigationStack.removeLast()
         }
     }
-     
+    
     func backToRoot() {
         if !navigationStack.isEmpty {
             navigationStack = NavigationPath()
@@ -35,7 +38,7 @@ final class OrdersCoordinator: ObservableObject {
     func makeOrderDetailsViewModel(order: Pedido, user: User) -> some OrderDetailsViewModeling {
         return OrderDetailsViewModel(coordinator: self, pedido: order, user: user)
     }
-     
+    
     @ViewBuilder
     func makeView(to route: OrdersRoute) -> some View {
         switch route {
@@ -48,7 +51,6 @@ final class OrdersCoordinator: ObservableObject {
     
     @ViewBuilder
     func makeStartView() -> some View {
-        let viewModel = MyOrdersViewModel(coordinator: self)
-        MyOrdersView(viewModel: viewModel)
+        MyOrdersView(viewModel: self.myOrdersViewModel)
     }
 }

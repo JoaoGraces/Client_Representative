@@ -8,43 +8,49 @@
 import SwiftUI
 
 struct MyOrdersView<ViewModel: MyOrdersViewModeling>: View {
-    @State private var viewModel: ViewModel
+    @ObservedObject private var viewModel: ViewModel
     
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
     
     var body: some View {
-        switch viewModel.viewState {
-        case .new, .loading:
-            ProgressView()
-                .onAppear{
-                    Task{
-                        await viewModel.fetchPipeline()
+        Group {
+            switch viewModel.viewState {
+            case .new, .loading:
+                ProgressView()
+                
+            case .loaded:
+                ScrollView{
+                    if viewModel.orders.isEmpty {
+                        Text("Nenhum pedido encontrado")
+                            .foregroundColor(.gray)
+                            .padding(.top, 50)
                     }
-                }
-        case .loaded:
-            ScrollView{
-                VStack (spacing: DS.Spacing.insetX){
-                    ForEach(viewModel.orders, id: \.self) { order in
-                        DSCard2 {
+                    VStack (spacing: DS.Spacing.insetX){
+                        ForEach(viewModel.orders, id: \.self) { order in
+                            DSCard2 {
                                 OrderCell(order: order, action: {
                                     viewModel.goToDetails(order: order)
                                 })
-                                    .padding(DS.Spacing.insetX)
+                                .padding(DS.Spacing.insetX)
+                            }
                         }
                     }
                 }
-            }
-            .navigationTitle("Meus Pedidos")
-            .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
-                Task{
-                    await viewModel.fetchPipeline()
+                .navigationTitle("Meus Pedidos")
+                .navigationBarTitleDisplayMode(.inline)
+              
+            case .error:
+                GenericErrorView {
+                    Task { await viewModel.fetchPipeline() }
                 }
             }
-        case .error:
-            GenericErrorView()
+        }
+        .onAppear {
+            Task{
+                await viewModel.fetchPipeline()
+            }
         }
     }
 }
