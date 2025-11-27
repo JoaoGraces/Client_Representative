@@ -21,8 +21,12 @@ final class ProductListViewModel: ObservableObject {
     private let pageSize = 12
     private var currentPage = 1
     private var cancellables = Set<AnyCancellable>()
-    private let orderService = OrderService.shared
+    private let orderService: OrderService = OrderService.shared
     private let apiProvider: APIProvider
+    var cartTotalQuantity: Int {
+            cartItems.reduce(0) { $0 + $1.quantity }
+        }
+    
 
     init(apiProvider: APIProvider = APIProvider()) {
         self.apiProvider = apiProvider

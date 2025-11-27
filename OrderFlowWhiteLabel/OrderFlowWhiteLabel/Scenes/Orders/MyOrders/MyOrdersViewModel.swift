@@ -5,10 +5,6 @@
 //  Created by Scarllet Gomes on 06/11/25.
 //
 
-//TODO: Lidar com o erro
-//TODO: Fazer requisições no firebase
-//TODO: Navegação
-
 import Foundation
 import SwiftUI
 
@@ -32,15 +28,13 @@ enum ViewState {
     case error
 }
 
-@Observable
 class MyOrdersViewModel: MyOrdersViewModeling {
+    @Published var orders: [Pedido] = []
+    @Published var viewState: ViewState = .new
     
-    var orders: [Pedido] = []
-    var viewState: ViewState = .new
-    
-    var empresa: Empresa?
-    var item: ItemPedido?
-    var usuario: User?
+    @Published var empresa: Empresa?
+    @Published var item: ItemPedido?
+    @Published var usuario: User?
     
     private let coordinator: OrdersCoordinator
     private let orderService: OrderService = OrderService.shared
@@ -52,52 +46,48 @@ class MyOrdersViewModel: MyOrdersViewModeling {
     
     @MainActor
     func goToDetails(order: Pedido) {
-        guard let usuario else {
-            viewState = .error
+        guard let usuario = self.usuario else {
             return
         }
         coordinator.go(to: .details(order: order, user: usuario))
     }
     
     func fetchPipeline() async {
+        if orders.isEmpty {
+            await MainActor.run { viewState = .loading }
+        }
         do {
             try await fetchOrders()
-        } catch {
-            self.viewState = .error
-        }
-        
-        do {
             try await fetchUser()
+            
+            await MainActor.run {
+                self.viewState = .loaded
+            }
         } catch {
-            self.viewState = .error
+            print("Erro no pipeline: \(error)")
+            await MainActor.run {
+                self.viewState = .error
+            }
         }
-        
-        self.viewState = .loaded
     }
     
     private func fetchOrders() async throws {
-        Task {
-            let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? ""
-            
-            do {
-               let orders = try await orderService.fetchClientOrders(forUserEmail: email)
-                self.orders = orders
-            } catch {
-                self.viewState = .error
-            }
+        let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? ""
+        
+        let fetchedOrders = try await orderService.fetchClientOrders(forUserEmail: email)
+        
+        await MainActor.run {
+            self.orders = fetchedOrders
         }
+        
     }
     
     private func fetchUser() async throws {
-        Task {
-            let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? ""
-            
-            do {
-                let user = try await fireStoreManager.getUserLogged(email: email)
-                self.usuario = user
-            } catch {
-                self.viewState = .error
-            }
+        let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? ""
+        let fetchedUser = try await fireStoreManager.getUserLogged(email: email)
+        
+        await MainActor.run {
+            self.usuario = fetchedUser
         }
     }
 }
@@ -112,7 +102,7 @@ extension MyOrdersViewModel {
         self.orders = [pedidoMock, pedidoMock2, pedidoMock3, pedidoMock]
         
         let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
-       
+        
         self.item = itemPedidoMock
     }
 }
