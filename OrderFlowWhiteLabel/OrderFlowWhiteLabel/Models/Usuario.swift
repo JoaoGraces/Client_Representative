@@ -24,7 +24,6 @@ struct Usuario: Codable, Identifiable {
  case adminDistribuidora = "ADMIN_DISTRIBUIDORA"
  }
  
-
 //esse é o model do Firebase
  struct User: Identifiable, Codable, Hashable {
      @DocumentID var id: String?

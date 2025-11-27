@@ -32,82 +32,39 @@ class RepresentativeClientsViewModel: ObservableObject {
         
         self.isLoading = false
     }
-    func logout() {
-          do {
-              try Auth.auth().signOut()
-          } catch {
-              print("Erro ao sair: \(error.localizedDescription)")
-          }
-      }
-}
-
-struct RepresentativeClientsView: View {
-    @StateObject private var viewModel = RepresentativeClientsViewModel()
     
-    var body: some View {
-        NavigationStack {
-            Group {
-                if viewModel.isLoading {
-                    ProgressView("Carregando carteira de clientes...")
-                } else if viewModel.clients.isEmpty {
-                    VStack(spacing: 12) {
-                        Image(systemName: "person.2.slash")
-                            .font(.largeTitle)
-                            .foregroundStyle(DS.Colors.neutral900.opacity(0.5))
-                        Text("Nenhum cliente vinculado.")
-                            .font(DS.Typography.body())
-                            .foregroundStyle(DS.Colors.neutral900.opacity(0.7))
-                    }
-                } else {
-                    List(viewModel.clients) { client in
-
-                        let isPending = client.role == .pending
-                        let statusText = isPending ? "Pendente" : "Ativo"
-                        let statusBG = (isPending ? Color.orange : Color.green).opacity(0.2)
-                        let statusFG = isPending ? Color.orange : Color.green
-
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(client.name)
-                                    .font(DS.Typography.caption())
-                                    .foregroundStyle(DS.Colors.neutral900)
-                                
-                                Text(client.email)
-                                    .font(.caption)
-                                    .foregroundStyle(DS.Colors.neutral900.opacity(0.6))
-                            }
-                            Spacer()
-                            
-                            Text(statusText)
-                                .font(.caption2)
-                                .fontWeight(.bold)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(statusBG)
-                                .foregroundStyle(statusFG)
-                                .cornerRadius(4)
-                        }
-                        .padding(.vertical, 4)
-                    }
-                    .listStyle(.plain)
-                }
-            }
-            .navigationTitle("Meus Clientes")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        viewModel.logout()
-                    }) {
-                        Image(systemName: "rectangle.portrait.and.arrow.right")
-                            .foregroundStyle(Color.red)
-                    }
-                }
-            }
-            .onAppear {
-                Task {
-                    await viewModel.fetchClients()
-                }
-            }
+    func logout() -> Bool {
+        do {
+            try Auth.auth().signOut()
+            return true
+        } catch {
+            print("Erro ao sair: \(error.localizedDescription)")
+            return false
         }
     }
+    
+    @MainActor
+    func changeClientStatus(client: User, newStatus: UserRole) async {
+        guard let clientId = client.id else {
+            print("Erro: Usuário sem ID de documento.")
+            return
+        }
+        
+        self.isLoading = true
+        
+        do {
+            try await FirestoreManager.shared.updateClientRole(userId: clientId, newRole: newStatus)
+            
+            if let index = self.clients.firstIndex(where: { $0.id == clientId }) {
+                self.clients[index].role = newStatus
+                // if newStatus == "refused" { self.clients.remove(at: index) }
+            }
+            
+        } catch {
+            print("Erro ao atualizar status: \(error.localizedDescription)")
+        }
+        
+        self.isLoading = false
+    }
+    
 }
