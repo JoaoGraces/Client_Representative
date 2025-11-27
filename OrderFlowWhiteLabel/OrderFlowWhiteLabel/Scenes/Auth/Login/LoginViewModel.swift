@@ -12,6 +12,9 @@ protocol LoginViewModeling: ObservableObject {
     var email: String { get set }
     var password: String { get set }
     
+    var showError: Bool { get set }
+    var errorMessage: String { get set }
+    
     func login() async
     func goToRegister()
 }
@@ -19,6 +22,9 @@ protocol LoginViewModeling: ObservableObject {
 class LoginViewModel: LoginViewModeling {
     @Published var email: String = ""
     @Published var password: String = ""
+    
+    @Published var showError: Bool = false
+    @Published var errorMessage: String = ""
     
     private let coordinator: AuthCoordinator
     
@@ -30,16 +36,18 @@ class LoginViewModel: LoginViewModeling {
         await MainActor.run {
             //            isLoading = true
         }
-        
         do {
-            try await AuthService.shared.signIn(email: email, password: password)            // 2. Buscamos a role usando o
+            try await AuthService.shared.signIn(email: email, password: password)
             let role = try await FirestoreManager.shared.getUserRole(email: self.email)
             
             await OrderFlowCache.shared.set(email, forKey: .email)
             
             await coordinator.completeAuthentication(role: role)
         } catch {
-            print(error.localizedDescription)
+            await MainActor.run {
+                self.errorMessage = "E-mail ou senha incorretos. Verifique e tente novamente."
+                self.showError = true
+            }
         }
         
         await MainActor.run {
