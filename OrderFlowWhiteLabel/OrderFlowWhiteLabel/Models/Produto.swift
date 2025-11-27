@@ -31,6 +31,10 @@ struct Produto: Codable, Identifiable, Hashable {
     }
 }
 
+struct DataProduto: Codable {
+    let dados: [Produto]
+}
+
 struct OrderConfirmation: Hashable, Codable {
     let pedido: Pedido
     let itens: [Produto]

@@ -35,17 +35,8 @@ struct RepresentativeOrdersView<ViewModel: RepresentativeMyOrdersViewModeling>: 
                 .navigationTitle("Pedidos")
                 .navigationBarTitleDisplayMode(.inline)
             case .error:
-                VStack {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.largeTitle)
-                        .foregroundColor(.orange)
-                    Text("Erro ao carregar pedidos")
-                        .font(.headline)
-                    
-                    Button("Tentar Novamente") {
-                        Task { await viewModel.fetchPipeline() }
-                    }
-                    .padding()
+                GenericErrorView {
+                    Task { await viewModel.fetchPipeline() }
                 }
             }
         }

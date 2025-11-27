@@ -14,8 +14,8 @@ import SwiftUI
 
 protocol MyOrdersViewModeling: ObservableObject {
     var orders: [Pedido] { get set }
-    var empresa: Empresa? { get set }
     var item: ItemPedido? { get set }
+    var usuario: User? { get set}
     
     var viewState: ViewState { get }
     
@@ -23,9 +23,6 @@ protocol MyOrdersViewModeling: ObservableObject {
     
     @MainActor
     func goToDetails(order: Pedido)
-    
-    @MainActor
-    func goToValidate(order: Pedido)
 }
 
 enum ViewState {
@@ -43,10 +40,11 @@ class MyOrdersViewModel: MyOrdersViewModeling {
     
     var empresa: Empresa?
     var item: ItemPedido?
-    var usuario: Usuario?
+    var usuario: User?
     
     private let coordinator: OrdersCoordinator
     private let orderService: OrderService = OrderService.shared
+    private let fireStoreManager: FirestoreManager = FirestoreManager.shared
     
     init(coordinator: OrdersCoordinator) {
         self.coordinator = coordinator
@@ -54,13 +52,11 @@ class MyOrdersViewModel: MyOrdersViewModeling {
     
     @MainActor
     func goToDetails(order: Pedido) {
-        coordinator.go(to: .details(order: order))
-    }
-    
-    @MainActor
-    func goToValidate(order: Pedido) {
-        let mockTempUser = User(name: "", email: "", phone: "", address: "", role: .client, representativeId: "")
-        coordinator.go(to: .validate(order: order, user: mockTempUser))
+        guard let usuario else {
+            viewState = .error
+            return
+        }
+        coordinator.go(to: .details(order: order, user: usuario))
     }
     
     func fetchPipeline() async {
@@ -71,13 +67,7 @@ class MyOrdersViewModel: MyOrdersViewModeling {
         }
         
         do {
-            try await fetchCompany()
-        } catch {
-            self.viewState = .error
-        }
-        
-        do {
-            try await fetchUsuario()
+            try await fetchUser()
         } catch {
             self.viewState = .error
         }
@@ -104,16 +94,18 @@ class MyOrdersViewModel: MyOrdersViewModeling {
         }
     }
     
-    private func fetchCompany() async throws {
-        let empresaMock = Empresa(id: UUID(), razaoSocial: "Empresa Teste", nomeFantasia: "Nome Fantasia", cnpj: "123.1323/321", tipo: .clienteFinal, distribuidoraPaiId: UUID())
-        self.empresa = empresaMock
+    private func fetchUser() async throws {
+        Task {
+            let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? ""
+            
+            do {
+                let user = try await fireStoreManager.getUserLogged(email: email)
+                self.usuario = user
+            } catch {
+                self.viewState = .error
+            }
+        }
     }
-    
-    private func fetchUsuario() async throws {
-        let usuarioMock = Usuario(id: UUID(), nomeCompleto: "Nome completo", senha_hash: "Senha", email: "email.com", papel: .adminCliente, empresaId: UUID(), dataCriacao: Date())
-        self.usuario = usuarioMock
-    }
-    
 }
 
 // Mocks

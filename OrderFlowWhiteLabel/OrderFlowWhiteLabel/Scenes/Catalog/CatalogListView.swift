@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct CatalogListView: View {
     @ObservedObject var viewModel: ProductListViewModel
     
@@ -18,39 +16,55 @@ struct CatalogListView: View {
     ]
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVGrid(columns: gridColumns, spacing: 16) {
-                    ForEach(viewModel.products) { product in
-                        ProductItemView(
-                            imageURL: product.imageName,
-                            name: product.nome,
-                            price: product.formattedPrice,
-                            tagText: product.tagText
-                        ) {
-                            viewModel.addToCart(product)
+        Group {
+            switch viewModel.viewState {
+            case .new, .loading:
+                ProgressView()
+                
+            case .loaded:
+                NavigationStack {
+                    ScrollView {
+                        LazyVGrid(columns: gridColumns, spacing: 16) {
+                            ForEach(viewModel.products) { product in
+                                ProductItemView(
+                                    imageURL: product.imageName,
+                                    name: product.nome,
+                                    price: product.formattedPrice,
+                                    tagText: product.tagText
+                                ) {
+                                    viewModel.addToCart(product)
+                                }
+                                .onAppear {
+                                    viewModel.loadNextPageIfNeeded(currentProduct: product)
+                                }
+                            }
                         }
-                        .onAppear {
-                            viewModel.loadNextPageIfNeeded(currentProduct: product)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 16)
+                        
+                        if viewModel.isLoadingMore {
+                            ProgressView()
+                                .padding()
                         }
                     }
+                    .navigationTitle("Catálogo de Produtos")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .searchable(
+                        text: $viewModel.searchText,
+                        placement: .navigationBarDrawer(displayMode: .always),
+                        prompt: "Buscar produtos..."
+                    )
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
-                
-                if viewModel.isLoadingMore {
-                    ProgressView()
-                        .padding()
+
+
+            case .error:
+                GenericErrorView {
+                    Task { await viewModel.fetchPipeline() }
                 }
-                
             }
-            .navigationTitle("Catálogo de Produtos")
-            .navigationBarTitleDisplayMode(.inline)
-               .searchable(
-                   text: $viewModel.searchText,
-                   placement: .navigationBarDrawer(displayMode: .always),
-                   prompt: "Buscar produtos..."
-               )
+        }
+        .onAppear {
+            Task { await viewModel.fetchPipeline() }
         }
     }
 }
