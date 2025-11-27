@@ -86,7 +86,7 @@ extension RepresentativeCoordinator: RepresentativeOrdersNavigation, Representat
         case .cancelamentoSolicitado:
             go(to: .cancelamentoSolicitado(order, user))
         default:
-            go(to: .enviado(order))
+            go(to: .novoPedido(order, user))
         }
     }
 

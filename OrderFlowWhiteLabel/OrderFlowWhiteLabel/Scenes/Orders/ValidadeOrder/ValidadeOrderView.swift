@@ -134,6 +134,16 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                         }
                     }
                     
+                    if viewModel.order.status == .enviado {
+                        Text("Pedido enviado! Aguardando confirmação de entrega.")
+                            .font(DS.Typography.body())
+                    }
+                    
+                    if viewModel.order.status == .finalizado {
+                        Text("Pedido entregue!")
+                            .font(DS.Typography.body())
+                    }
+                    
                     if viewModel.order.status == .cancelamentoSolicitado {
                         PrimaryButton(title: "Aprovar Cancelamento") {
                             viewModel.aproveCancelation()
