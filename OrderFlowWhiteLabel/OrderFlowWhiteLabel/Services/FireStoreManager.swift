@@ -88,8 +88,6 @@ final class FirestoreManager {
     }
     
     func updateClientRole(userId: String, newRole: UserRole) async throws {
-        let db = Firestore.firestore()
-        
         try await db.collection("users").document(userId).updateData([
             "role": newRole.rawValue
         ])
@@ -103,7 +101,7 @@ final class FirestoreManager {
                 .document(orderId.uuidString)
 
             try await docRef.updateData([
-                "pedido.status": newStatus.rawValue
+                "status": newStatus.rawValue
             ])
         }
 }
