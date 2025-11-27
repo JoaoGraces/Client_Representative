@@ -8,10 +8,23 @@
 import SwiftUI
 
 struct CheckOrderView: View {
+    
+    let pedido: Pedido
+    let user: User
+    
     var body: some View {
         
         VStack {
-            OrderStatus(orderCode: "#OF-2023-00145", orderStatus: "Entregue", orderDate: "24 de Outubro, 2023")
+            OrderStatus(
+                orderCode: pedido.id.uuidString,
+                orderStatus: pedido.status.rawValue,
+                orderDate: {
+                    let df = DateFormatter()
+                    df.locale = Locale(identifier: "pt_BR")
+                    df.dateFormat = "dd/MM/yyyy"   // customize here
+                    return df.string(from: pedido.dataCriacao)
+                }()
+            )
                 .padding(.vertical)
             DSInsetDivider()
             
@@ -19,7 +32,7 @@ struct CheckOrderView: View {
                 .padding(.top, 5)
 
             
-            ClientInfoView(clientName: "Maria Silva", address: "Rua das Flores, 123, Bairro Jardim, Cidade Nova - SP", contactNumber: "(11) 98765-4321")
+            ClientInfoView(clientName: user.name, address: user.address, contactNumber: user.phone)
                         
             Text("Itens do Pedido")
                 .bold()
@@ -28,10 +41,16 @@ struct CheckOrderView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
             
-            OrderItemCheckView(itemName: "Cafeteira Expresso Premium", itemQuantity: 1, price: 299.99)
-
+            ForEach(pedido.produtos, id: \.id) { produto in
+                OrderItemCheckView(
+                    itemName: produto.nome,
+                    itemQuantity: produto.quantidade,
+                    price: produto.precoUnidade,
+                    imageName: produto.imageName
+                )
+            }
             
-            TotalOrderPriceView(totalPrice: 509.89)
+            TotalOrderPriceView(totalPrice: pedido.total)
         }
         .padding()
         .background(
@@ -54,6 +73,7 @@ struct OrderItemCheckView: View {
     var itemName: String
     var itemQuantity: Int
     var price: Double
+    var imageName: String? = nil
     
     var body: some View {
         VStack {
@@ -62,7 +82,20 @@ struct OrderItemCheckView: View {
                     .frame(width: 70, height: 70)
                     .foregroundStyle(Color.gray.opacity(0.2))
                     .overlay(
-                        ProgressView()
+                        Group {
+                            if let imageName = imageName,
+                               !imageName.isEmpty,
+                               UIImage(named: imageName) != nil {
+                                
+                                Image(imageName)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                
+                            } else {
+                                ProgressView()
+                            }
+                        }
                     )
                 
                 VStack(alignment: .leading) {
@@ -87,6 +120,8 @@ struct OrderItemCheckView: View {
     }
 }
 
+
+
 struct OrderStatus: View {
     
     var orderCode: String
@@ -96,7 +131,7 @@ struct OrderStatus: View {
     var body: some View {
         VStack(alignment: .leading) {
             
-            Text("Pedido \(orderCode)")
+            Text("Pedido #\(orderCode)")
                 .font(.title2)
                 .bold()
             
@@ -125,17 +160,17 @@ struct ClientInfoView: View {
                     .bold()
                     .font(.title2)
                 HStack {
-                    Text("Cliente: \(clientName)")
+                    Text("Cliente: ")
                         .bold()
                     Text("\(clientName)")
                 }
                 HStack {
-                    Text("Endereço: \(clientName)")
+                    Text("Endereço: ")
                         .bold()
                     Text("\(address)")
                 }
                 HStack {
-                    Text("Contato: \(clientName)")
+                    Text("Contato: ")
                         .bold()
                     Text("\(contactNumber)")
                 }
@@ -167,5 +202,55 @@ struct TotalOrderPriceView: View {
 }
 
 #Preview {
-    CheckOrderView()
+    
+    let mockProdutos: [Produto] = [
+        Produto(
+            id: UUID(),
+            distribuidoraId: UUID(),
+            nome: "Água Mineral 500ml",
+            quantidade: 2,
+            precoUnidade: 3.50,
+            estoque: 120,
+            imageName: "agua",
+            tagText: "Bebidas"
+        ),
+        Produto(
+            id: UUID(),
+            distribuidoraId: UUID(),
+            nome: "Refrigerante Cola 2L",
+            quantidade: 1,
+            precoUnidade: 8.99,
+            estoque: 50,
+            imageName: "refri",
+            tagText: "Bebidas"
+        )
+    ]
+
+    let mockPedido = Pedido(
+        id: UUID(),
+        empresaClienteId: UUID(),
+        usuarioCriadorId: UUID(),
+        representanteId: UUID(),
+        status: .criado,
+        dataEntregaSolicitada: Calendar.current.date(byAdding: .day, value: 3, to: Date())!,
+        dataVencimentoPagamento: Calendar.current.date(byAdding: .day, value: 10, to: Date())!,
+        statusRecebimento: nil,
+        observacoesCliente: "Entregar no período da manhã.",
+        dataCriacao: Date(),
+        produtos: mockProdutos,
+        taxaEntrega: 12.0
+    )
+    
+    let mockUser = User(
+        id: "user_12345",
+        name: "Maria Silva",
+        email: "mariasilva@example.com",
+        phone: "+55 11 98765-4321",
+        address: "Rua das Flores, 123 - São Paulo, SP",
+        role: .client,
+        representativeId: "rep_98765"
+    )
+    
+    CheckOrderView(pedido: mockPedido, user: mockUser)
 }
+
