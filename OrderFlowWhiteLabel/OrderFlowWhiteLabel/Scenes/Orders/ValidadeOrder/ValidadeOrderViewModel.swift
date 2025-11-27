@@ -24,6 +24,7 @@ protocol ValidadeOrderViewModeling: ObservableObject {
     func rejectOrder()
     func aproveCancelation()
     func rejectCancelation()
+    func orderShipped()
     
     @MainActor
     func goToDetails(order: Pedido)
@@ -62,6 +63,29 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
         return itens.reduce(0) { $0 + $1.valorTotal }
     }
     
+    func orderShipped() {
+        Task {
+            do {
+                // Chama o Singleton do FirestoreManager
+                try await FirestoreManager.shared.updateOrderStatus(
+                    forUserEmail: self.usuario.email,
+                    orderId: self.order.id,
+                    newStatus: .enviado
+                )
+                
+                await MainActor.run {
+                    self.order.status = .enviado
+                    self.viewState = .loaded
+                    print("✅ Pedido aprovado com sucesso via Manager")
+                }
+            } catch {
+                await MainActor.run {
+                    print("❌ Erro ao aprovar: \(error.localizedDescription)")
+                     self.viewState = .error
+                }
+            }
+        }
+    }
     
     func aproveOrder() {
         Task {
