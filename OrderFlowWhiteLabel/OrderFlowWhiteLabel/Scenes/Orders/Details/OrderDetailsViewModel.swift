@@ -20,6 +20,7 @@ protocol OrderDetailsViewModeling: ObservableObject {
     func calculateTotal() -> Double
     func fetchPipeline() async
     func cancelOrder()
+    func confirmShipping()
 }
 
 @Observable
@@ -62,7 +63,47 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
     }
     
     func cancelOrder() {
-        //TODO: Fazer chamada do FireBase
+        Task {
+            do {
+                // Chama o Singleton do FirestoreManager
+                try await FirestoreManager.shared.updateOrderStatus(
+                    forUserEmail: self.usuario.email,
+                    orderId: self.order.id,
+                    newStatus: .cancelamentoSolicitado
+                )
+                
+                await MainActor.run {
+                    self.order.status = .cancelamentoSolicitado
+                    self.viewState = .loaded
+                }
+            } catch {
+                await MainActor.run {
+                     self.viewState = .error
+                }
+            }
+        }
+    }
+    
+    func confirmShipping() {
+        Task {
+            do {
+                // Chama o Singleton do FirestoreManager
+                try await FirestoreManager.shared.updateOrderStatus(
+                    forUserEmail: self.usuario.email,
+                    orderId: self.order.id,
+                    newStatus: .finalizado
+                )
+                
+                await MainActor.run {
+                    self.order.status = .finalizado
+                    self.viewState = .loaded
+                }
+            } catch {
+                await MainActor.run {
+                     self.viewState = .error
+                }
+            }
+        }
     }
     
     private func fetchOrder() async throws {

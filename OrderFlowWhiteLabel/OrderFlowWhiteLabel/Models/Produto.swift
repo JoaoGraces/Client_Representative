@@ -58,6 +58,7 @@ struct OrderConfirmation: Hashable, Codable {
         case .finalizado: return "Finalizado"
         case .cancelamento: return "Cancelado"
         case .alteracao: return "Alteração"
+        case .cancelamentoSolicitado: return "Cancelamento solicitado"
         }
     }
 
