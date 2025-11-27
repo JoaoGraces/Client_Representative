@@ -59,7 +59,8 @@ class MyOrdersViewModel: MyOrdersViewModeling {
     
     @MainActor
     func goToValidate(order: Pedido) {
-        coordinator.go(to: .validate(order: order))
+        let mockTempUser = User(name: "", email: "", phone: "", address: "", role: .client, representativeId: "")
+        coordinator.go(to: .validate(order: order, user: mockTempUser))
     }
     
     func fetchPipeline() async {

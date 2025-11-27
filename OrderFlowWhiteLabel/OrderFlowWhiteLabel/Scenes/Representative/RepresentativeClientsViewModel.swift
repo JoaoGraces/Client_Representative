@@ -60,6 +60,12 @@ struct RepresentativeClientsView: View {
                     }
                 } else {
                     List(viewModel.clients) { client in
+
+                        let isPending = client.role == .pending
+                        let statusText = isPending ? "Pendente" : "Ativo"
+                        let statusBG = (isPending ? Color.orange : Color.green).opacity(0.2)
+                        let statusFG = isPending ? Color.orange : Color.green
+
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(client.name)
@@ -72,14 +78,13 @@ struct RepresentativeClientsView: View {
                             }
                             Spacer()
                             
-                            // Badge de Status (Opcional)
-                            Text(client.role == "pending" ? "Pendente" : "Ativo")
+                            Text(statusText)
                                 .font(.caption2)
                                 .fontWeight(.bold)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background(client.role == "pending" ? Color.orange.opacity(0.2) : Color.green.opacity(0.2))
-                                .foregroundStyle(client.role == "pending" ? Color.orange : Color.green)
+                                .background(statusBG)
+                                .foregroundStyle(statusFG)
                                 .cornerRadius(4)
                         }
                         .padding(.vertical, 4)

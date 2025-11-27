@@ -5,18 +5,14 @@
 //  Created by Scarllet Gomes on 06/11/25.
 //
 
-//TODO: Lidar com o erro
-//TODO: Fazer requisições no firebase
-//TODO: Navegação
-
 import Foundation
 import SwiftUI
 
 protocol ValidadeOrderViewModeling: ObservableObject {
     var order: Pedido { get set }
-    var empresa: Empresa? { get set }
     var itens: [ItemPedido] { get }
     var produtos: [Produto] { get }
+    var usuario: User { get }
     
     var viewState: ViewState { get }
     
@@ -38,40 +34,30 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
     
     var itens: [ItemPedido] = []
     var produtos: [Produto] = []
-    var empresa: Empresa?
-    var usuario: Usuario?
+    var usuario: User
     
-    private let coordinator: OrdersCoordinator
+    private let coordinator: RepresentativeCoordinator
     
-    init(coordinator: OrdersCoordinator, pedido: Pedido) {
+    init(coordinator: RepresentativeCoordinator, pedido: Pedido, user: User) {
         self.coordinator = coordinator
         self.order = pedido
+        self.usuario = user
     }
     
     @MainActor
     func goToDetails(order: Pedido) {
-        coordinator.go(to: .details(order: order))
+       // coordinator.go(to: .details(order: order))
         self.order = order
     }
     
     func fetchPipeline() async {
-        do {
-            try await fetchOrders()
-        } catch {
-            self.viewState = .error
-        }
+        prepateData()
         
-        do {
-            try await fetchCompany()
-        } catch {
-            self.viewState = .error
-        }
-        
-        do {
+    /*    do {
             try await fetchUsuario()
         } catch {
             self.viewState = .error
-        }
+        } */
         
         self.viewState = .loaded
     }
@@ -86,6 +72,13 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
     
     func rejectOrder() {
         
+    }
+    
+    private func prepateData() {
+        self.produtos = order.produtos
+        self.itens = order.produtos.map { item in
+              ItemPedido(pedidoId: order.id, produtoId: item.id, quantidade: item.quantidade, precoUnitarioMomento: Decimal(item.precoUnidade))
+           }
     }
     
     private func fetchOrders() async throws {
@@ -135,15 +128,10 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
             
         }
     
-    private func fetchCompany() async throws {
-        let empresaMock = Empresa(id: UUID(), razaoSocial: "Empresa Teste", nomeFantasia: "Nome Fantasia", cnpj: "123.1323/321", tipo: .clienteFinal, distribuidoraPaiId: UUID())
-        self.empresa = empresaMock
-    }
-    
-    private func fetchUsuario() async throws {
+   /* private func fetchUsuario() async throws {
         let usuarioMock = Usuario(id: UUID(), nomeCompleto: "Nome completo", senha_hash: "Senha", email: "email.com", papel: .adminCliente, empresaId: UUID(), dataCriacao: Date())
         self.usuario = usuarioMock
-    }
+    } */
     
 }
 

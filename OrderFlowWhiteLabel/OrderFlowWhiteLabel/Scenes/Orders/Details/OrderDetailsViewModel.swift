@@ -14,7 +14,7 @@ protocol OrderDetailsViewModeling: ObservableObject {
     var produtos: [Produto] { get }
     
     var empresa: Empresa? { get set }
-    var usuario: Usuario? { get set }
+    var usuario: User? { get set }
     var viewState: ViewState { get }
     
     func calculateTotal() -> Double
@@ -29,11 +29,12 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
     var produtos: [Produto] = []
     var order: Pedido
     var empresa: Empresa?
-    var usuario: Usuario?
+    var usuario: User?
     
     var viewState: ViewState = .new
     
     private let coordinator: OrdersCoordinator
+    private let fireStoreManager  = FirestoreManager.shared
     
     init(coordinator: OrdersCoordinator, pedido: Pedido) {
         self.coordinator = coordinator
@@ -43,12 +44,6 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
     func fetchPipeline() async {
         do {
             try await fetchOrder()
-        } catch {
-            self.viewState = .error
-        }
-        
-        do {
-            try await fetchCompany()
         } catch {
             self.viewState = .error
         }
@@ -130,13 +125,16 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
         
     }
     
-    private func fetchCompany() async throws {
-        let empresaMock = Empresa(id: UUID(), razaoSocial: "Empresa Teste", nomeFantasia: "Nome Fantasia", cnpj: "123.1323/321", tipo: .clienteFinal, distribuidoraPaiId: UUID())
-        self.empresa = empresaMock
-    }
-    
     private func fetchUsuario() async throws {
-        let usuarioMock = Usuario(id: UUID(), nomeCompleto: "Nome completo", senha_hash: "Senha", email: "email.com", papel: .adminCliente, empresaId: UUID(), dataCriacao: Date())
-        self.usuario = usuarioMock
+        Task {
+            let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? ""
+            do {
+                let user = try await fireStoreManager.getUserLogged(email: email)
+                self.usuario = user
+            } catch {
+                print("Erro ao puxar user em orderDetail")
+            }
+        }
+        
     }
 }

@@ -82,4 +82,33 @@ final class OrderService {
                 print("❌ Error creating pedido:", error)
             }
         }
+    
+    func getAllRepOrders(repEmail: String) async throws -> [PedidoComCliente] {
+        var result: [PedidoComCliente] = []
+
+        let snapshot = try await db.collection("users")
+            .whereField("representative_id", isEqualTo: repEmail)
+            .getDocuments()
+        
+        let clients = snapshot.documents.compactMap { document -> User? in
+            try? document.data(as: User.self)
+        }
+
+        for client in clients {
+            let snapshot = try await db
+                .collection("users")
+                .document(client.email)
+                .collection("pedidos")
+                .getDocuments()
+
+            let pedidos = snapshot.documents.compactMap { try? $0.data(as: Pedido.self) }
+
+            for pedido in pedidos {
+                result.append(PedidoComCliente(pedido: pedido, usuario: client))
+            }
+        }
+
+        return result
+    }
+
 }

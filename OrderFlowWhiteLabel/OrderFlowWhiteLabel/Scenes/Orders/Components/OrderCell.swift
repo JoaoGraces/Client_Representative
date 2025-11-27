@@ -9,23 +9,18 @@ import SwiftUI
 
 struct OrderCell: View {
     var order: Pedido
-    var empresa: Empresa
     var action: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Spacing.smallPadding) {
             HStack {
-                Text("PEDIDO #\(order.id)")
+                Text("PEDIDO #\(order.id.uuidString.suffix(6))")
                     .font(DS.Typography.sectionTitle())
                 
                 Spacer()
                 
                 StatusBadge(status: order.status)
             }
-            
-            Text(empresa.nomeFantasia)
-                .foregroundStyle(DS.Colors.neutral700)
-                .font(DS.Typography.body())
             
             
             HStack() {

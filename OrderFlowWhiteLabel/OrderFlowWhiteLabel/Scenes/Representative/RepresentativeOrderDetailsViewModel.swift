@@ -43,9 +43,10 @@ class RepresentativeOrderDetailsViewModel: RepresentativeOrderDetailsViewModelin
     
     private weak var coordinator: RepresentativeOrderDetailsNavigation?
     
-    init(coordinator: RepresentativeOrderDetailsNavigation?, pedido: Pedido) {
+    init(coordinator: RepresentativeOrderDetailsNavigation?, pedido: Pedido, viewState: ViewState = .new) {
         self.coordinator = coordinator
         self.order = pedido // Recebe o pedido da navegação
+        self.viewState = viewState
     }
     
     

@@ -9,6 +9,7 @@ import SwiftUI
 
 protocol RepresentativeMyOrdersViewModeling: ObservableObject {
     var orders: [Pedido] { get set }
+    var ordersAndClient: [PedidoComCliente] { get set }
     var empresa: Empresa? { get set }
     var item: ItemPedido? { get set }
     
@@ -20,18 +21,20 @@ protocol RepresentativeMyOrdersViewModeling: ObservableObject {
     func goToDetails(order: Pedido)
     
     @MainActor
-    func goToValidate(order: Pedido)
+    func goToValidate(order: Pedido, user: User)
 }
 
 @Observable
 class RepresentativeOrdersViewModel: RepresentativeMyOrdersViewModeling {
     var orders: [Pedido] = []
+    var ordersAndClient: [PedidoComCliente] = []
     var viewState: ViewState = .new
     var empresa: Empresa?
     var item: ItemPedido?
     var usuario: Usuario?
     
     private weak var coordinator: RepresentativeOrdersNavigation?
+    private var orderService = OrderService.shared
     
     init(coordinator: RepresentativeOrdersNavigation?) {
         self.coordinator = coordinator
@@ -44,22 +47,22 @@ class RepresentativeOrdersViewModel: RepresentativeMyOrdersViewModeling {
     }
     
     @MainActor
-    func goToValidate(order: Pedido) {
-        coordinator?.goToValidate(order: order)
+    func goToValidate(order: Pedido, user: User) {
+        coordinator?.goToValidate(order: order, user: user)
     }
     
     
     func fetchPipeline() async {
-        guard viewState == .new else { return } // Evita recarregar
-        viewState = .loading
+       // guard viewState == .new else { return } // Evita recarregar
+        if self.ordersAndClient.isEmpty {
+            viewState = .loading
+        }
         
         do {
             // Simula uma chamada de rede
             try await Task.sleep(nanoseconds: 1_000_000_000) // 1 segundo
             
             try await fetchOrders()
-            try await fetchCompany()
-            try await fetchUsuario()
             
             self.viewState = .loaded
         } catch {
@@ -68,6 +71,20 @@ class RepresentativeOrdersViewModel: RepresentativeMyOrdersViewModeling {
     }
     
     private func fetchOrders() async throws {
+        Task {
+            let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? ""
+            
+            do {
+                let orders = try await orderService.getAllRepOrders(repEmail: email)
+                self.orders = orders.map { $0.pedido }
+                self.ordersAndClient = orders
+            } catch {
+                self.viewState = .error
+            }
+        }
+    }
+    
+    private func fetchOrdersMock() async throws {
         let pedidoMock = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .alteracao, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la", dataCriacao: Date(), produtos: [], taxaEntrega: 1)
         let pedidoMock2 = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .cancelamento, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la2", dataCriacao: Date(),produtos: [], taxaEntrega: 1)
         let pedidoMock3 = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .enviado, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la3", dataCriacao: Date(), produtos: [], taxaEntrega: 1)

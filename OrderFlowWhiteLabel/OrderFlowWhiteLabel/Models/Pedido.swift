@@ -70,3 +70,9 @@ enum StatusRecebimento: String, Codable {
     case problemaRecebido = "PROBLEMA_RECEBIDO"
     case problemaNaoRecebido = "PROBLEMA_NAO_RECEBIDO"
 }
+
+
+struct PedidoComCliente {
+    let pedido: Pedido
+    let usuario: User
+}

@@ -28,7 +28,7 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                 VStack (spacing: DS.Spacing.insetX){
                     DSCard2 {
                         VStack(alignment: .leading) {
-                            DSSectionHeader(title: "Pedido \(viewModel.order.id)")
+                            DSSectionHeader(title: "Pedido #\(viewModel.order.id.uuidString.suffix(6))")
                             
                             HStack{
                                 Text("Data:")
@@ -46,7 +46,7 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                                 
                                 Spacer()
                                 
-                                Text(viewModel.empresa?.nomeFantasia ?? "")
+                                Text(viewModel.usuario.name)
                                     .font(DS.Typography.bodySemibold())
                             }
                             
@@ -56,7 +56,7 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                                 
                                 Spacer()
                                 
-                                Text(viewModel.empresa?.nomeFantasia ?? "")
+                                Text(viewModel.usuario.address)
                                     .font(DS.Typography.bodySemibold())
                             }
                             
@@ -72,15 +72,26 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                             DSFullInsetDivider()
                             
                             HStack{
+                                Text("Frete:")
+                                    .font(DS.Typography.body())
+                                
+                                Spacer()
+                                
+                                Text("R$ \(viewModel.order.taxaEntrega.twoDecimals)")
+                                    .font(DS.Typography.bodySemibold())
+                            }
+                            .padding(.top)
+                            
+                            HStack{
                                 Text("Valor Total:")
                                     .font(DS.Typography.body())
                                 
                                 Spacer()
                                 
-                                Text("\(viewModel.calculateTotal())")
+                                Text("R$ \(viewModel.order.total.twoDecimals)")
                                     .font(DS.Typography.bodySemibold())
                             }
-                            .padding(.vertical)
+                            .padding(.bottom)
                             
                         }
                         .padding()
@@ -98,13 +109,13 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                                         Text("Produto")
                                             .font(DS.Typography.bodySemibold())
                                         
-                                        Text("\(item.quantidade)x \(item.precoUnitarioMomento)")
+                                        Text("\(item.quantidade)x \(item.precoUnitarioMomento.twoDecimals)")
                                             .font(DS.Typography.body())
                                     }
                                     
                                     Spacer()
                                     
-                                    Text("R$ \(item.valorTotal)")
+                                    Text("R$ \(item.valorTotal.twoDecimals)")
                                         .font(DS.Typography.bodySemibold())
                                 }
                                 
