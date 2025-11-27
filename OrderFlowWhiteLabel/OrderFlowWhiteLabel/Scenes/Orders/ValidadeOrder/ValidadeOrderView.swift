@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
-    @State private var viewModel: ViewModel
+    @ObservedObject private var viewModel: ViewModel
+    
+    @State private var showRejectConfirmation = false
     
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
@@ -123,15 +125,27 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                         }
                         .padding()
                     }
-                
+                    
                     DSFullInsetDivider()
                     
-                    PrimaryButton(title: "Aprovar Pedido") {
-                        viewModel.aproveOrder()
+                    
+                    if viewModel.order.status != .aprovado {
+                        PrimaryButton(title: "Aprovar Pedido") {
+                            viewModel.aproveOrder()
+                        }
                     }
                     
                     SecondaryButton(title: "Rejeitar Pedido") {
-                        viewModel.rejectOrder()
+                        showRejectConfirmation = true
+                    }
+                    .alert("Confirmar Rejeição", isPresented: $showRejectConfirmation) {
+                        Button("Cancelar", role: .cancel) { }
+                        
+                        Button("Rejeitar", role: .destructive) {
+                            viewModel.rejectOrder()
+                        }
+                    } message: {
+                        Text("Tem certeza que deseja rejeitar este pedido? Esta ação não pode ser desfeita.")
                     }
                     
                 }
