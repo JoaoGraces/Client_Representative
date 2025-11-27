@@ -128,6 +128,12 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                     
                     DSFullInsetDivider()
                     
+                    if viewModel.order.status == .aprovado {
+                        PrimaryButton(title: "Pedido Enviado") {
+                            viewModel.orderShipped()
+                        }
+                    }
+                    
                     if viewModel.order.status == .cancelamentoSolicitado {
                         PrimaryButton(title: "Aprovar Cancelamento") {
                             viewModel.aproveCancelation()
