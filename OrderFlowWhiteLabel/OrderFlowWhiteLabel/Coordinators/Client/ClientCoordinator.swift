@@ -43,6 +43,7 @@ struct ClientCoordinatorView: View {
             .tabItem {
                 Label("Carrinho", systemImage: "cart.fill")
             }
+            .badge(sharedViewModel.cartTotalQuantity > 0 ? String(sharedViewModel.cartTotalQuantity) : nil)
             .tag(ClientTab.cart)
             
             NavigationStack(path: $ordersCoordinator.navigationStack) {

@@ -8,9 +8,6 @@
 import SwiftUI
 import Combine
 
-import SwiftUI
-import Combine
-
 final class ProductListViewModel: ObservableObject {
     @Published private(set) var products: [Produto] = []
     @Published private(set) var isLoadingMore = false
@@ -22,6 +19,9 @@ final class ProductListViewModel: ObservableObject {
     private var allProducts: [Produto] = []
     private var cancellables = Set<AnyCancellable>()
     private let orderService: OrderService = OrderService.shared
+    var cartTotalQuantity: Int {
+            cartItems.reduce(0) { $0 + $1.quantity }
+        }
     
     init() {
         loadProducts()
