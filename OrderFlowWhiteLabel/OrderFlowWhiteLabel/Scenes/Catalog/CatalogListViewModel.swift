@@ -8,26 +8,81 @@
 import SwiftUI
 import Combine
 
-import SwiftUI
-import Combine
-
 final class ProductListViewModel: ObservableObject {
     @Published private(set) var products: [Produto] = []
+    @Published private(set) var allProducts: [Produto] = []
     @Published private(set) var isLoadingMore = false
+
     @Published var searchText: String = ""
+    @Published var viewState: ViewState = .new
+    
     @Published var cartItems: [CartItemModel] = []
-    
+
+    private let pageSize = 12
     private var currentPage = 1
-    private let pageSize = 10
-    private var allProducts: [Produto] = []
     private var cancellables = Set<AnyCancellable>()
-    private let orderService: OrderService = OrderService.shared
-    
-    init() {
-        loadProducts()
+    private let orderService = OrderService.shared
+    private let apiProvider: APIProvider
+
+    init(apiProvider: APIProvider = APIProvider()) {
+        self.apiProvider = apiProvider
         setupSearch()
     }
+
+    // MARK: Pipeline
+    func fetchPipeline() async {
+        if allProducts.isEmpty {
+            await MainActor.run { viewState = .loading }
+            do {
+                try await loadProducts()
+            } catch {
+                await MainActor.run { viewState = .error }
+            }
+        }
+    }
+
+
+    // MARK: Loading base data
+    private func loadProducts() async throws {
+        // simulação opcional — pode remover se já estiver com backend real
+        // try await Task.sleep(nanoseconds: 800_000_000)
+
+        let initial = await fetchProducts()  
+
+        if initial.isEmpty {
+            await MainActor.run { viewState = .error }
+            return
+        }
+
+        await MainActor.run {
+            self.allProducts = initial
+            self.products = initial
+            self.viewState = .loaded
+        }
+    }
+
     
+    func fetchProducts() async -> [Produto] {
+        do {
+            let dataProducts: DataProduto = try await apiProvider.request(
+                endpoint: "/orderFlow/catalog/products",
+                method: .get,
+                body: EmptyRequest(),
+                responseType: DataProduto.self
+            )
+            
+            return dataProducts.dados
+            
+        } catch let error as OrderFlowError {
+            await MainActor.run { viewState = .error }
+        } catch {
+            await MainActor.run {  viewState = .error }
+        }
+        
+        return []
+    }
+    
+    // MARK: Search
     private func setupSearch() {
         $searchText
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
@@ -37,37 +92,34 @@ final class ProductListViewModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
-    
+
     private func filterProducts(by text: String) {
         if text.isEmpty {
             products = allProducts
         } else {
-            products = allProducts.filter { $0.nome.localizedCaseInsensitiveContains(text) }
+            products = allProducts.filter {
+                $0.nome.localizedCaseInsensitiveContains(text)
+            }
         }
     }
-    
-    func loadProducts() {
-        // Simulação inicial (em app real viria de API)
-        let newProducts = mockData()
-        allProducts.append(contentsOf: newProducts)
-        products = allProducts
-    }
-    
+
+    // MARK: Pagination
     func loadNextPageIfNeeded(currentProduct: Produto) {
         guard !isLoadingMore else { return }
-        
+
         let thresholdIndex = products.index(products.endIndex, offsetBy: -2)
+
         if products.firstIndex(where: { $0.id == currentProduct.id }) == thresholdIndex {
             loadMore()
         }
     }
-    
+
     private func loadMore() {
         isLoadingMore = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            self.currentPage += 1
-            let newProducts = self.mockData()
-            self.allProducts.append(contentsOf: newProducts)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            let new = self.mockData()
+            self.allProducts.append(contentsOf: new)
             self.filterProducts(by: self.searchText)
             self.isLoadingMore = false
         }

@@ -88,12 +88,6 @@ final class FirestoreManager {
     }
     
     func updateClientRole(userId: String, newRole: UserRole) async throws {
-        let db = Firestore.firestore()
-        
-        return try snapshot.data(as: User.self)
-    }
-    
-    func updateClientRole(userId: String, newRole: UserRole) async throws {
         try await db.collection("users").document(userId).updateData([
             "role": newRole.rawValue
         ])
