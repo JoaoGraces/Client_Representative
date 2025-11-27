@@ -33,11 +33,13 @@ class RepresentativeClientsViewModel: ObservableObject {
         self.isLoading = false
     }
     
-    func logout() {
+    func logout() -> Bool {
         do {
             try Auth.auth().signOut()
+            return true
         } catch {
             print("Erro ao sair: \(error.localizedDescription)")
+            return false
         }
     }
     

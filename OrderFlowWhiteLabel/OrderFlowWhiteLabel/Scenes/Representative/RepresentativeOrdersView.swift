@@ -50,5 +50,7 @@ struct RepresentativeOrdersView<ViewModel: RepresentativeMyOrdersViewModeling>: 
 
 
 #Preview {
-    RepresentativeCoordinatorView()
+    RepresentativeCoordinatorView(onLogout: {
+        print("Logout simulado no Preview")
+    })
 }

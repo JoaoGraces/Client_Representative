@@ -9,6 +9,7 @@ import FirebaseAuth
 
 struct RepresentativeClientsView: View {
     @StateObject private var viewModel = RepresentativeClientsViewModel()
+    var didFinish: () -> Void
     
     var body: some View {
         NavigationStack {
@@ -45,7 +46,9 @@ struct RepresentativeClientsView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        viewModel.logout()
+                        if viewModel.logout() {
+                            didFinish()
+                        }
                     }) {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
                             .foregroundStyle(Color.red)
@@ -85,25 +88,17 @@ struct ClientRowView: View {
                 statusBadgeView
             }
             if client.role == .pending {
-                Divider()
                 HStack(spacing: 16) {
-                    Button(action: onRefuse) {
-                        Label("Recusar", systemImage: "xmark")
-                            .font(.caption.bold())
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                    }
-                    .buttonStyle(.bordered)
-                    .tint(.red)
                     
-                    Button(action: onAccept) {
-                        Label("Aprovar", systemImage: "checkmark")
-                            .font(.caption.bold())
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
+                    DangerButton(title: "Recusar") {
+                        onRefuse()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.green)
+                    
+                    PrimaryButton(title: "Aprovar") {
+                        onAccept()
+                    }
+                    
+                    
                 }
             }
         }

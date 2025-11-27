@@ -107,10 +107,10 @@ extension RepresentativeCoordinator: RepresentativeOrdersNavigation, Representat
 
 struct RepresentativeCoordinatorView: View {
     @StateObject private var coordinator = RepresentativeCoordinator()
-    
+    var onLogout: () -> Void
     var body: some View {
         TabView {
-            RepresentativeClientsView()
+            RepresentativeClientsView(didFinish: onLogout)
                 .tabItem {
                     Label("Clientes", systemImage: "person.2.crop.square.stack")
                 }
@@ -129,6 +129,6 @@ struct RepresentativeCoordinatorView: View {
     }
 }
 
-#Preview {
-    RepresentativeCoordinatorView()
-}
+/***#Preview {
+    RepresentativeCoordinatorView(onLogout: () -> Void)
+}***/
