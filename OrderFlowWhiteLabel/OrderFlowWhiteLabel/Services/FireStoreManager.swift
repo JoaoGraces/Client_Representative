@@ -94,4 +94,16 @@ final class FirestoreManager {
             "role": newRole.rawValue
         ])
     }
+    
+    func updateOrderStatus(
+            forUserEmail email: String, orderId: UUID, newStatus: PedidoStatus) async throws {
+            let docRef = db.collection("users")
+                .document(email)
+                .collection("pedidos")
+                .document(orderId.uuidString)
+
+            try await docRef.updateData([
+                "pedido.status": newStatus.rawValue
+            ])
+        }
 }

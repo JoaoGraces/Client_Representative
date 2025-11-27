@@ -34,12 +34,14 @@ struct LoginView<ViewModel: LoginViewModeling>: View {
                     .textContentType(.newPassword)
                     .submitLabel(.next)
                 
-                PrimaryButton(title: "Login") {
+                PrimaryButton(title: viewModel.isLoading ? "Entrando..." : "Login") {
                     Task {
                         await viewModel.login()
                     }
                 }
                 .padding(.top, 24)
+                .opacity(viewModel.isLoading ? 0.6 : 1.0)
+                .disabled(viewModel.isLoading)
                 
                 Button(action: viewModel.goToRegister) {
                     Text("Já tem uma conta? Voltar ao Login")
