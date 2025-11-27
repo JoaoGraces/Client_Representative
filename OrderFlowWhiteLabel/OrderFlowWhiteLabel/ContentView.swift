@@ -12,7 +12,7 @@ struct ContentView: View {
     var body: some View {
         ClientCoordinatorView().onAppear {
             Task {
-                await OrderFlowCache.shared.set("johnDoes@example.com", forKey: .email)
+                await OrderFlowCache.shared.set("dasadsasdads@sddas.com", forKey: .email)
             }
         }
             
