@@ -9,7 +9,7 @@ import Foundation
 import FirebaseFirestore
 import FirebaseAuth
 
-enum UserRole: String {
+enum UserRole: String, Codable {
     case pending
     case client
     case representative
@@ -50,7 +50,6 @@ final class FirestoreManager {
         }
         
         let userDoc = try await db.collection("users").document(email).getDocument()
-        
         if userDoc.exists {
             if let data = userDoc.data(),
                let roleString = data["role"] as? String,
@@ -74,5 +73,13 @@ final class FirestoreManager {
         }
         
         return clients
+    }
+    
+    func updateClientRole(userId: String, newRole: UserRole) async throws {
+        let db = Firestore.firestore()
+        
+        try await db.collection("users").document(userId).updateData([
+            "role": newRole.rawValue
+        ])
     }
 }

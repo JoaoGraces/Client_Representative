@@ -24,7 +24,6 @@ struct Usuario: Codable, Identifiable {
  case adminDistribuidora = "ADMIN_DISTRIBUIDORA"
  }
  
-
 //esse é o model do Firebase
  struct User: Identifiable, Codable {
      @DocumentID var id: String?
@@ -33,7 +32,7 @@ struct Usuario: Codable, Identifiable {
      let email: String
      let phone: String
      let address: String
-     let role: String
+     var role: UserRole
      
      let representativeId: String
      
