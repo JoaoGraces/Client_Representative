@@ -9,17 +9,19 @@ import SwiftUI
 
 // (O enum RepresentativeRoute está 100% correto e não muda)
 enum RepresentativeRoute: Hashable {
-    case cancelamento(Pedido)
+    case cancelamento(Pedido, User)
     case enviado(Pedido)
     case alteracao(Pedido)
     case novoPedido(Pedido, User)
+    case cancelamentoSolicitado(Pedido, User)
      
     func hash(into hasher: inout Hasher) {
         switch self {
-        case .cancelamento(let p): hasher.combine("c"); hasher.combine(p.id)
+        case .cancelamento(let p, let u): hasher.combine("c"); hasher.combine(p.id)
         case .enviado(let p): hasher.combine("e"); hasher.combine(p.id)
         case .alteracao(let p): hasher.combine("a"); hasher.combine(p.id)
         case .novoPedido: hasher.combine("n")
+        case .cancelamentoSolicitado(let p, let u): hasher.combine("c"); hasher.combine(p.id)
         }
     }
     static func == (lhs: RepresentativeRoute, rhs: RepresentativeRoute) -> Bool {
@@ -41,8 +43,9 @@ final class RepresentativeCoordinator: ObservableObject {
     @ViewBuilder
     func makeView(to route: RepresentativeRoute) -> some View {
         switch route {
-        case .cancelamento(let pedido):
-            CancellationView()
+        case .cancelamento(let pedido, let user):
+            let viewModel = ValidadeOrderViewModel(coordinator: self, pedido: pedido, user: user)
+            ValidadeOrderView(viewModel: viewModel)
              
         case .enviado(let pedido):
             let viewModel = RepresentativeOrderDetailsViewModel(
@@ -57,6 +60,9 @@ final class RepresentativeCoordinator: ObservableObject {
         case .novoPedido(let pedido, let user):
             let viewModel = ValidadeOrderViewModel(coordinator: self, pedido: pedido, user: user)
             ValidadeOrderView(viewModel: viewModel)
+        case .cancelamentoSolicitado(let pedido, let user):
+            let viewModel = ValidadeOrderViewModel(coordinator: self, pedido: pedido, user: user)
+            ValidadeOrderView(viewModel: viewModel)
         }
     }
      
@@ -68,6 +74,10 @@ final class RepresentativeCoordinator: ObservableObject {
 }
 
 extension RepresentativeCoordinator: RepresentativeOrdersNavigation, RepresentativeOrderDetailsNavigation {
+    func requestCancel(order: Pedido) {
+        
+    }
+    
     
     @MainActor
     func goToDetails(order: Pedido) {
@@ -79,13 +89,15 @@ extension RepresentativeCoordinator: RepresentativeOrdersNavigation, Representat
          
         switch order.status {
         case .cancelamento:
-            go(to: .cancelamento(order))
+            go(to: .cancelamento(order, user))
         case .enviado:
             go(to: .enviado(order))
         case .alteracao:
             go(to: .alteracao(order))
         case .criado:
             go(to: .novoPedido(order, user))
+        case .cancelamentoSolicitado:
+            go(to: .cancelamentoSolicitado(order, user))
         default:
             go(to: .enviado(order))
         }
@@ -100,9 +112,9 @@ extension RepresentativeCoordinator: RepresentativeOrdersNavigation, Representat
     }
     
     @MainActor
-    func requestCancel(order: Pedido) {
+    func requestCancel(order: Pedido, user: User) {
         print("Coordenador: Navegando para .cancelamento")
-        go(to: .cancelamento(order))
+        go(to: .cancelamento(order, user))
     }
 }
 

@@ -32,8 +32,10 @@ enum PedidoStatus: String, Codable {
     case enviado = "ENVIADO"
     case entregue = "ENTREGUE"
     case finalizado = "FINALIZADO"
-    case cancelamento = "CANCELAMENTO"
+    case cancelamento = "CANCELADO"
     case alteracao = "ALTERAÇÃO"
+    case cancelamentoSolicitado = "CANCELAMENTO PENDENTE"
+    
     
     func message() -> String {
         switch self {
@@ -53,6 +55,8 @@ enum PedidoStatus: String, Codable {
             return "Pedido Cancelado."
         case .alteracao:
             return "Pedido Alterado."
+        case .cancelamentoSolicitado:
+            return "Pedido com cancelamento solicitado."
         }
     }
     
@@ -65,6 +69,8 @@ enum PedidoStatus: String, Codable {
         case .cancelamento, .rejeitado:
             return DS.Colors.redBase
         case .alteracao:
+            return DS.Colors.golden
+        case .cancelamentoSolicitado:
             return DS.Colors.golden
         }
     }

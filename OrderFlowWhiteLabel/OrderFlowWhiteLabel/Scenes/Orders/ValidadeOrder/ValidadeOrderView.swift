@@ -128,13 +128,31 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                     
                     DSFullInsetDivider()
                     
+                    if viewModel.order.status == .cancelamentoSolicitado {
+                        PrimaryButton(title: "Aprovar Cancelamento") {
+                            viewModel.aproveCancelation()
+                        }
+                        
+                        SecondaryButton(title: "Rejeitar Cancelamento") {
+                            showRejectConfirmation = true
+                        }
+                        .alert("Confirmar Rejeição", isPresented: $showRejectConfirmation) {
+                            Button("Cancelar", role: .cancel) { }
+                            
+                            Button("Rejeitar", role: .destructive) {
+                                viewModel.rejectCancelation()
+                            }
+                        } message: {
+                            Text("Tem certeza que deseja rejeitar o cancelamento este pedido? Esta ação não pode ser desfeita.")
+                        }
+                    }
                     
-                    if viewModel.order.status != .aprovado {
+                    if viewModel.order.status != .aprovado && viewModel.order.status != .cancelamentoSolicitado && viewModel.order.status != .cancelamento && viewModel.order.status != .enviado {
                         PrimaryButton(title: "Aprovar Pedido") {
                             viewModel.aproveOrder()
                         }
                     }
-                    if viewModel.order.status != .rejeitado {
+                    if viewModel.order.status != .rejeitado && viewModel.order.status != .cancelamentoSolicitado && viewModel.order.status != .cancelamento && viewModel.order.status != .enviado {
                         SecondaryButton(title: "Rejeitar Pedido") {
                             showRejectConfirmation = true
                         }

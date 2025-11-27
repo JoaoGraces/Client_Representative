@@ -22,6 +22,8 @@ protocol ValidadeOrderViewModeling: ObservableObject {
     
     func aproveOrder()
     func rejectOrder()
+    func aproveCancelation()
+    func rejectCancelation()
     
     @MainActor
     func goToDetails(order: Pedido)
@@ -98,7 +100,55 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
                 )
                 
                 await MainActor.run {
-                    self.order.status = .rejeitado
+                    self.order.status = .cancelamento
+                    self.viewState = .loaded
+                    print("🚫 Pedido rejeitado com sucesso via Manager")
+                }
+            } catch {
+                await MainActor.run {
+                    print("❌ Erro ao rejeitar: \(error.localizedDescription)")
+                     self.viewState = .error
+                }
+            }
+        }
+    }
+    
+    func aproveCancelation() {
+        Task {
+            do {
+                // Chama o Singleton do FirestoreManager
+                try await FirestoreManager.shared.updateOrderStatus(
+                    forUserEmail: self.usuario.email,
+                    orderId: self.order.id,
+                    newStatus: .cancelamento
+                )
+                
+                await MainActor.run {
+                    self.order.status = .cancelamento
+                    self.viewState = .loaded
+                    print("🚫 Pedido rejeitado com sucesso via Manager")
+                }
+            } catch {
+                await MainActor.run {
+                    print("❌ Erro ao rejeitar: \(error.localizedDescription)")
+                     self.viewState = .error
+                }
+            }
+        }
+    }
+    
+    func rejectCancelation() {
+        Task {
+            do {
+                // Chama o Singleton do FirestoreManager
+                try await FirestoreManager.shared.updateOrderStatus(
+                    forUserEmail: self.usuario.email,
+                    orderId: self.order.id,
+                    newStatus: .enviado
+                )
+                
+                await MainActor.run {
+                    self.order.status = .enviado
                     self.viewState = .loaded
                     print("🚫 Pedido rejeitado com sucesso via Manager")
                 }

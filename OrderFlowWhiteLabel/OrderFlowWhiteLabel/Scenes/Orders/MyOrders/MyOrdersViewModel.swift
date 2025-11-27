@@ -75,12 +75,6 @@ class MyOrdersViewModel: MyOrdersViewModeling {
         self.viewState = .loaded
     }
     
-    func getItems(order: OrderConfirmation) {
-     //   self.item = order.itens.map { item in
-    //       ItemPedido(pedidoId: order.pedido.id, produtoId: item.id, quantidade: item.quantidade, precoUnitarioMomento: Decimal(item.precoUnidade))
-    //    }
-    }
-    
     private func fetchOrders() async throws {
         Task {
             let email: String = await OrderFlowCache.shared.value(forKey: .email) as? String ?? ""

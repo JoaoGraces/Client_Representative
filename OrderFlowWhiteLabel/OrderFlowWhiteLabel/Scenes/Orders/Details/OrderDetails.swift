@@ -25,7 +25,7 @@ struct OrderDetails<ViewModel: OrderDetailsViewModeling>: View {
                         VStack(alignment: .leading, spacing: DS.Spacing.insetX) {
                             
                             HStack {
-                                Text("Pedido #\(viewModel.order.id)")
+                                Text("Pedido #\(viewModel.order.id.uuidString.suffix(6))")
                                     .font(DS.Typography.sectionTitle())
                                 
                                 Spacer()
@@ -77,13 +77,22 @@ struct OrderDetails<ViewModel: OrderDetailsViewModeling>: View {
                             }
                             .padding(.vertical)
                         }
-                        
+                        .padding(.vertical)
                         switch viewModel.order.status {
                         case .rejeitado, .finalizado, .cancelamento :
                             EmptyView()
+                            
+                        case .enviado:
+                            PrimaryButton(title: "Confirmar Entrega") {
+                                viewModel.confirmShipping()
+                            }
+                        case .cancelamentoSolicitado:
+                            Text("Pedido de cancelamento em análise.")
+                                .foregroundColor(.secondary)
+                                .padding(.vertical)
                         default:
                             DangerButton(title: "Solicitar Cancelamento") {
-                                //TODO: Concluir Ação
+                                viewModel.cancelOrder()
                             }
                         }
                     }
