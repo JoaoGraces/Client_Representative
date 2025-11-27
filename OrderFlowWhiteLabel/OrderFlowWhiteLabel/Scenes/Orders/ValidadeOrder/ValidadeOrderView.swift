@@ -153,7 +153,7 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
             .navigationTitle("Validar Pedido")
             .navigationBarTitleDisplayMode(.inline)
         case .error:
-            EmptyView()
+            GenericErrorView()
         }
     }
 }

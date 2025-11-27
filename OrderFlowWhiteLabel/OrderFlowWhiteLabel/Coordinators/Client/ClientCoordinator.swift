@@ -56,6 +56,13 @@ struct ClientCoordinatorView: View {
                 Label("Pedidos", systemImage: "list.bullet.rectangle.portrait.fill")
             }
             .tag(ClientTab.orders)
+        }.onAppear() {
+            cartCoordinator.onSeeMyOrders = {
+                self.selectedTab = .orders
+            }
+            cartCoordinator.onSeeCatalog = {
+                self.selectedTab = .catalog
+            }
         }
     }
 }

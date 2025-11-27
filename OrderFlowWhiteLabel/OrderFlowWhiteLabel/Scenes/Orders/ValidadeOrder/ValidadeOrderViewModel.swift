@@ -53,12 +53,6 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
     func fetchPipeline() async {
         prepateData()
         
-        /*    do {
-         try await fetchUsuario()
-         } catch {
-         self.viewState = .error
-         } */
-        
         self.viewState = .loaded
     }
     
@@ -85,7 +79,7 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
             } catch {
                 await MainActor.run {
                     print("❌ Erro ao aprovar: \(error.localizedDescription)")
-                    // self.viewState = .error
+                     self.viewState = .error
                 }
             }
         }
@@ -111,7 +105,7 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
             } catch {
                 await MainActor.run {
                     print("❌ Erro ao rejeitar: \(error.localizedDescription)")
-                    // self.viewState = .error
+                     self.viewState = .error
                 }
             }
         }

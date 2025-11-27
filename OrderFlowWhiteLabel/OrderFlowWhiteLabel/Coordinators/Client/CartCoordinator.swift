@@ -16,6 +16,8 @@ enum CartRoute: Hashable {
 final class CartCoordinator: ObservableObject {
     @Published var navigationStack = NavigationPath()
     private(set) var viewModel: ProductListViewModel?
+    var onSeeMyOrders: () -> Void = { }
+    var onSeeCatalog: () -> Void = { }
     
     func start(with viewModel: ProductListViewModel) {
           self.viewModel = viewModel
@@ -57,10 +59,24 @@ final class CartCoordinator: ObservableObject {
                 viewModel: OrderSentViewModel(
                     data: confirmation,
                     onBackToCatalog: {
+                        Task { @MainActor in
+                            await Task.yield()   // Deixa o layout estabilizar
+                            self.onSeeCatalog()
+                        }
                         self.backToRoot()
                         self.viewModel?.clearCart()
+                   
+        
                     },
-                    onSeeMyOrders: { /* ação futura */ }
+                    onSeeMyOrders: {
+                        Task { @MainActor in
+                            await Task.yield()   // Deixa o layout estabilizar
+                            self.onSeeMyOrders()
+                        }
+                        self.backToRoot()
+                        self.viewModel?.clearCart()
+                   
+                    }
                 )
             )
         default:
