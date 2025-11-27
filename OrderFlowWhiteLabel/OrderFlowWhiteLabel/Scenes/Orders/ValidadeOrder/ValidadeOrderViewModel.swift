@@ -13,7 +13,7 @@ import Foundation
 import SwiftUI
 
 protocol ValidadeOrderViewModeling: ObservableObject {
-    var order: OrderConfirmation { get set }
+    var order: Pedido { get set }
     var empresa: Empresa? { get set }
     var itens: [ItemPedido] { get }
     var produtos: [Produto] { get }
@@ -28,12 +28,12 @@ protocol ValidadeOrderViewModeling: ObservableObject {
     func rejectOrder()
     
     @MainActor
-    func goToDetails(order: OrderConfirmation)
+    func goToDetails(order: Pedido)
 }
 
 @Observable
 class ValidadeOrderViewModel: ValidadeOrderViewModeling {
-    var order: OrderConfirmation
+    var order: Pedido
     var viewState: ViewState = .new
     
     var itens: [ItemPedido] = []
@@ -43,13 +43,13 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
     
     private let coordinator: OrdersCoordinator
     
-    init(coordinator: OrdersCoordinator, pedido: OrderConfirmation) {
+    init(coordinator: OrdersCoordinator, pedido: Pedido) {
         self.coordinator = coordinator
         self.order = pedido
     }
     
     @MainActor
-    func goToDetails(order: OrderConfirmation) {
+    func goToDetails(order: Pedido) {
         coordinator.go(to: .details(order: order))
         self.order = order
     }
@@ -89,11 +89,9 @@ class ValidadeOrderViewModel: ValidadeOrderViewModeling {
     }
     
     private func fetchOrders() async throws {
-            let pedidoMock = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .alteracao, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la", dataCriacao: Date())
-             
-        let orderMock = OrderConfirmation(pedido: pedidoMock, itens: [], taxaEntrega: 1)
+        let pedidoMock = Pedido(id: UUID(), empresaClienteId: UUID(), usuarioCriadorId: UUID(), representanteId: UUID(), status: .alteracao, dataEntregaSolicitada: Date(), dataVencimentoPagamento: Date(), statusRecebimento: .conforme, observacoesCliente: "sei la", dataCriacao: Date(), produtos: [], taxaEntrega: 1)
         
-        self.order = orderMock
+        self.order = pedidoMock
              
             let itemPedidoMock = ItemPedido(pedidoId: UUID(), produtoId: UUID(), quantidade: 2, precoUnitarioMomento: 10.50)
             

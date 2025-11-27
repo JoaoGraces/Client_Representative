@@ -26,12 +26,12 @@ struct OrderDetails<ViewModel: OrderDetailsViewModeling>: View {
                             VStack(alignment: .leading, spacing: DS.Spacing.insetX) {
                                 
                                 HStack {
-                                    Text("Pedido #\(viewModel.order.pedido.id)")
+                                    Text("Pedido #\(viewModel.order.id)")
                                         .font(DS.Typography.sectionTitle())
                                     
                                     Spacer()
                                     
-                                    StatusBadge(status: viewModel.order.pedido.status)
+                                    StatusBadge(status: viewModel.order.status)
                                 }
                                 .padding(.horizontal, DS.Spacing.insetX)
                                 

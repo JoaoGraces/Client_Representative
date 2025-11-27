@@ -13,39 +13,39 @@ final class OrderService {
     private let db = Firestore.firestore()
     private init() {}
 
-    func createOrder(forUserEmail email: String, order: OrderConfirmation) async throws {
+    func createOrder(forUserEmail email: String, order: Pedido) async throws {
         let pedidosRef = db.collection("users").document(email).collection("pedidos")
-        try pedidosRef.document(order.pedido.id.uuidString).setData(from: order)
+        try pedidosRef.document(order.id.uuidString).setData(from: order)
     }
 
-    func fetchClientOrders(forUserEmail email: String) async throws -> [OrderConfirmation] {
+    func fetchClientOrders(forUserEmail email: String) async throws -> [Pedido] {
         let snapshot = try await db
             .collection("users")
             .document(email)
             .collection("pedidos")
-            .order(by: "pedido.dataCriacao", descending: true)
+            .order(by: "dataCriacao", descending: true)
             .getDocuments()
 
-        return snapshot.documents.compactMap { try? $0.data(as: OrderConfirmation.self) }
+        return snapshot.documents.compactMap { try? $0.data(as: Pedido.self) }
     }
 
-    func fetchAllOrders() async throws -> [OrderConfirmation] {
+    func fetchAllOrders() async throws -> [Pedido] {
         let usersSnapshot = try await db.collection("users").getDocuments()
-        var allPedidos: [OrderConfirmation] = []
+        var allPedidos: [Pedido] = []
 
         for userDoc in usersSnapshot.documents {
             let pedidosSnapshot = try await userDoc.reference.collection("pedidos").getDocuments()
-            let pedidos = pedidosSnapshot.documents.compactMap { try? $0.data(as: OrderConfirmation.self) }
+            let pedidos = pedidosSnapshot.documents.compactMap { try? $0.data(as: Pedido.self) }
             allPedidos.append(contentsOf: pedidos)
         }
 
         return allPedidos
     }
 
-    func updateOrder(forUserEmail email: String, order: OrderConfirmation) async throws {
+    func updateOrder(forUserEmail email: String, order: Pedido) async throws {
         let docRef = db.collection("users").document(email)
             .collection("pedidos")
-            .document(order.pedido.id.uuidString)
+            .document(order.id.uuidString)
         try  docRef.setData(from: order, merge: true)
     }
 
@@ -67,15 +67,15 @@ final class OrderService {
                 dataVencimentoPagamento: Date().addingTimeInterval(86400 * 30),
                 statusRecebimento: nil,
                 observacoesCliente: "Entrega rápida, por favor",
-                dataCriacao: Date()
+                dataCriacao: Date(),
+                produtos: [],
+                taxaEntrega: 10.0
             )
-        
-        let order = OrderConfirmation(pedido: pedido, itens: [], taxaEntrega: 1)
 
             do {
                 try await OrderService.shared.createOrder(
                     forUserEmail: "brunoamteodoro@gmail.com",
-                    order: order
+                    order: pedido
                 )
                 print("✅ Pedido created successfully!")
             } catch {

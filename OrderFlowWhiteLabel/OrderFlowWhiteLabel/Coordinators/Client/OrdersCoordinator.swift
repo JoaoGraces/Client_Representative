@@ -8,8 +8,8 @@
 import SwiftUI
 
 enum OrdersRoute: Hashable {
-    case details(order: OrderConfirmation)
-    case validate(order: OrderConfirmation)
+    case details(order: Pedido)
+    case validate(order: Pedido)
 }
 
 @MainActor
@@ -32,11 +32,11 @@ final class OrdersCoordinator: ObservableObject {
         }
     }
     
-    func makeOrderDetailsViewModel(order: OrderConfirmation) -> some OrderDetailsViewModeling {
+    func makeOrderDetailsViewModel(order: Pedido) -> some OrderDetailsViewModeling {
         return OrderDetailsViewModel(coordinator: self, pedido: order)
     }
     
-    func makeValidadeOrderViewViewModel(order: OrderConfirmation) -> some ValidadeOrderViewModeling {
+    func makeValidadeOrderViewViewModel(order: Pedido) -> some ValidadeOrderViewModeling {
         return ValidadeOrderViewModel(coordinator: self, pedido: order)
     }
      
