@@ -12,7 +12,7 @@ struct Pedido: Codable, Identifiable, Hashable {
     let empresaClienteId: UUID
     let usuarioCriadorId: UUID
     let representanteId: UUID
-    let status: PedidoStatus
+    var status: PedidoStatus
     let dataEntregaSolicitada: Date
     let dataVencimentoPagamento: Date
     let statusRecebimento: StatusRecebimento?
@@ -27,7 +27,8 @@ struct Pedido: Codable, Identifiable, Hashable {
 
 enum PedidoStatus: String, Codable {
     case criado = "CRIADO"
-    case validado = "VALIDADO"
+    case aprovado = "APROVADO"
+    case rejeitado = "REJEITADO"
     case enviado = "ENVIADO"
     case entregue = "ENTREGUE"
     case finalizado = "FINALIZADO"
@@ -38,8 +39,10 @@ enum PedidoStatus: String, Codable {
         switch self {
         case .criado:
             return "Você tem um novo pedido para revisão."
-        case .validado:
-            return "Pedido Validado."
+        case .aprovado:
+            return "Pedido Aprovado."
+        case .rejeitado:
+            return "Pedido Rejeitado."
         case .enviado:
             return "Pedido Enviado."
         case .entregue:
@@ -55,11 +58,13 @@ enum PedidoStatus: String, Codable {
     
     func getColor() -> Color {
         switch self {
-        case .validado, .enviado, .entregue, .finalizado:
+        case .aprovado, .enviado, .entregue, .finalizado:
             return DS.Colors.blueBase
         case .criado:
             return DS.Colors.white
-        case .cancelamento, .alteracao:
+        case .cancelamento, .rejeitado:
+            return DS.Colors.redBase
+        case .alteracao:
             return DS.Colors.golden
         }
     }

@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 
 protocol LoginViewModeling: ObservableObject {
+    var isLoading: Bool { get set }
+    
     var email: String { get set }
     var password: String { get set }
     
@@ -20,6 +22,7 @@ protocol LoginViewModeling: ObservableObject {
 }
 
 class LoginViewModel: LoginViewModeling {
+    @Published var isLoading: Bool = false
     @Published var email: String = ""
     @Published var password: String = ""
     
@@ -30,11 +33,16 @@ class LoginViewModel: LoginViewModeling {
     
     init(coordinator: AuthCoordinator) {
         self.coordinator = coordinator
+        Task {
+            await loadLastEmail()
+        }
     }
     
+    
     func login() async {
-        await MainActor.run {
-            //            isLoading = true
+        await MainActor.run { isLoading = true }
+        defer { //desliga o estadod e loading ao fim da execucao
+            Task { @MainActor in isLoading = false }
         }
         do {
             try await AuthService.shared.signIn(email: email, password: password)
@@ -53,11 +61,20 @@ class LoginViewModel: LoginViewModeling {
         await MainActor.run {
             //            isLoading = false
         }
+        
     }
     
     func goToRegister() {
         Task { @MainActor in
             coordinator.switchTo(route: .register)
+        }
+    }
+    
+    @MainActor
+    private func loadLastEmail() async {
+        // Busca do cache
+        if let savedEmail = await OrderFlowCache.shared.value(forKey: .email) as? String {
+            self.email = savedEmail
         }
     }
 }

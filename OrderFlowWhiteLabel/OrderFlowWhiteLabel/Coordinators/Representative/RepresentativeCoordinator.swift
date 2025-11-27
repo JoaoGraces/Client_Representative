@@ -30,7 +30,9 @@ enum RepresentativeRoute: Hashable {
 @MainActor
 final class RepresentativeCoordinator: ObservableObject {
     @Published var navigationStack = NavigationPath()
-     
+    private lazy var ordersViewModel: RepresentativeOrdersViewModel = {
+            return RepresentativeOrdersViewModel(coordinator: self)
+        }()
     func go(to route: RepresentativeRoute) { navigationStack.append(route) }
     func back() { if !navigationStack.isEmpty { navigationStack.removeLast() } }
     func backToRoot() { if !navigationStack.isEmpty { navigationStack = NavigationPath() } }
@@ -61,9 +63,7 @@ final class RepresentativeCoordinator: ObservableObject {
      
     @ViewBuilder
     func makeStartView() -> some View {
-        let viewModel = RepresentativeOrdersViewModel(coordinator: self)
-         
-        RepresentativeOrdersView(viewModel: viewModel)
+        RepresentativeOrdersView(viewModel: self.ordersViewModel)
     }
 }
 

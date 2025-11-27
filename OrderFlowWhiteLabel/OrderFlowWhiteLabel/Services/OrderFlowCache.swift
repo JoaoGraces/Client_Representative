@@ -4,6 +4,7 @@
 //
 //  Created by Gabriel Eduardo on 25/11/25.
 //
+import Foundation
 
 enum CacheKeys: String {
     case email
@@ -11,7 +12,7 @@ enum CacheKeys: String {
 
 actor OrderFlowCache {
     
-    static var shared = OrderFlowCache()
+    static let shared = OrderFlowCache()
     
     var cache: [String: Any] = [:]
     
@@ -19,10 +20,15 @@ actor OrderFlowCache {
     
     func set(_ value: Any, forKey key: CacheKeys) {
         cache[key.rawValue] = value
+        UserDefaults.standard.set(value, forKey: key.rawValue)
     }
     
     func value(forKey key: CacheKeys) -> Any? {
-        return cache[key.rawValue]
+        if let memoryValue = cache[key.rawValue] {
+            return memoryValue
+        }
+        
+        return UserDefaults.standard.value(forKey: key.rawValue)
     }
-} 
+}
 
