@@ -107,14 +107,25 @@ extension RepresentativeCoordinator: RepresentativeOrdersNavigation, Representat
 
 struct RepresentativeCoordinatorView: View {
     @StateObject private var coordinator = RepresentativeCoordinator()
-     
+    
     var body: some View {
-        NavigationStack(path: $coordinator.navigationStack) {
-            coordinator.makeStartView()
-                .navigationDestination(for: RepresentativeRoute.self) { route in
-                    coordinator.makeView(to: route)
+        TabView {
+            RepresentativeClientsView()
+                .tabItem {
+                    Label("Clientes", systemImage: "person.2.crop.square.stack")
                 }
+            
+            NavigationStack(path: $coordinator.navigationStack) {
+                coordinator.makeStartView()
+                    .navigationDestination(for: RepresentativeRoute.self) { route in
+                        coordinator.makeView(to: route)
+                    }
+            }
+            .tabItem {
+                Label("Pedidos", systemImage: "list.clipboard")
+            }
         }
+        .tint(DS.Colors.blueBase)
     }
 }
 
