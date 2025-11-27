@@ -19,7 +19,6 @@ protocol OrderDetailsViewModeling: ObservableObject {
     
     func calculateTotal() -> Double
     func fetchPipeline() async
-    func requestUpdate()
     func cancelOrder()
 }
 
@@ -60,10 +59,6 @@ class OrderDetailsViewModel: OrderDetailsViewModeling {
     
     func calculateTotal() -> Double {
         return itens.reduce(0) { $0 + $1.valorTotal }
-    }
-    
-    func requestUpdate() {
-        //TODO: Fazer chamada do FireBase
     }
     
     func cancelOrder() {

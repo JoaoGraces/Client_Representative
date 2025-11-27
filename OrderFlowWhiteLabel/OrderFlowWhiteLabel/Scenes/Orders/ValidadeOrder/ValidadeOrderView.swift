@@ -134,20 +134,20 @@ struct ValidadeOrderView<ViewModel: ValidadeOrderViewModeling>: View {
                             viewModel.aproveOrder()
                         }
                     }
-                    
-                    SecondaryButton(title: "Rejeitar Pedido") {
-                        showRejectConfirmation = true
-                    }
-                    .alert("Confirmar Rejeição", isPresented: $showRejectConfirmation) {
-                        Button("Cancelar", role: .cancel) { }
-                        
-                        Button("Rejeitar", role: .destructive) {
-                            viewModel.rejectOrder()
+                    if viewModel.order.status != .rejeitado {
+                        SecondaryButton(title: "Rejeitar Pedido") {
+                            showRejectConfirmation = true
                         }
-                    } message: {
-                        Text("Tem certeza que deseja rejeitar este pedido? Esta ação não pode ser desfeita.")
+                        .alert("Confirmar Rejeição", isPresented: $showRejectConfirmation) {
+                            Button("Cancelar", role: .cancel) { }
+                            
+                            Button("Rejeitar", role: .destructive) {
+                                viewModel.rejectOrder()
+                            }
+                        } message: {
+                            Text("Tem certeza que deseja rejeitar este pedido? Esta ação não pode ser desfeita.")
+                        }
                     }
-                    
                 }
             }
             .navigationTitle("Validar Pedido")

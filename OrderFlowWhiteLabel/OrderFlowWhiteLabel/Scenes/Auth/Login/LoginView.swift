@@ -44,7 +44,7 @@ struct LoginView<ViewModel: LoginViewModeling>: View {
                 .disabled(viewModel.isLoading)
                 
                 Button(action: viewModel.goToRegister) {
-                    Text("Já tem uma conta? Voltar ao Login")
+                    Text("Não tem uma conta? Registre-se")
                         .font(.callout)
                         .fontWeight(.semibold)
                 }
